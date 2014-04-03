@@ -238,7 +238,7 @@ public class HUDActivity extends Activity implements
 	public void onConnected(Bundle connectionHint) {
 		Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
 		currentLocation = client.getLastLocation();
-		locationText.setText(currentLocation.toString());
+		locationText.append("\n" + currentLocation.toString());
 		GMapV2Direction md = new GMapV2Direction();
 		LatLng test = new LatLng(currentLocation.getLatitude(),
 				currentLocation.getLongitude());
@@ -249,11 +249,7 @@ public class HUDActivity extends Activity implements
 			ArrayList<LatLng> directionPoint = md.getDirection(doc);
 
 			for (int i = 0; i < directionPoint.size(); i++) {
-				if (i == 0)
-					directionText.setText(((LatLng) directionPoint.get(i))
-							.toString());
-				else
-					directionText.append(((LatLng) directionPoint.get(i))
+					directionText.append("\n" + ((LatLng) directionPoint.get(i))
 							.toString());
 			}
 			Log.d("HUD", doc.toString());
