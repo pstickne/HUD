@@ -1,14 +1,21 @@
 package com.uml.gpscarhud;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.LocationClient;
 import com.uml.gpscarhud.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.IntentSender;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -16,7 +23,8 @@ import android.view.View;
  * 
  * @see SystemUiHider
  */
-public class HUDActivity extends Activity {
+public class HUDActivity extends Activity implements  GooglePlayServicesClient.ConnectionCallbacks,
+GooglePlayServicesClient.OnConnectionFailedListener{
 	/**
 	 * Whether or not the system UI should be auto-hidden after
 	 * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -44,6 +52,16 @@ public class HUDActivity extends Activity {
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
 	private SystemUiHider mSystemUiHider;
+	
+	private static TextView locationText = null;
+	
+	 private final static int
+     CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+	 
+	 LocationClient client = null;
+	 
+	 Location currentLocation;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +71,7 @@ public class HUDActivity extends Activity {
 
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
+		locationText = (TextView) findViewById(R.id.fullscreen_content);
 
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
@@ -111,6 +130,8 @@ public class HUDActivity extends Activity {
 		// operations to prevent the jarring behavior of controls going away
 		// while interacting with the UI.
 		findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+		
+		client = new LocationClient(this, this, this);
 	}
 
 	@Override
@@ -122,6 +143,22 @@ public class HUDActivity extends Activity {
 		// are available.
 		delayedHide(100);
 	}
+	
+	@Override
+    protected void onStart() {
+        super.onStart();
+        // Connect the client.
+        client.connect();
+    }
+	
+	@Override
+    protected void onStop() {
+        // Disconnecting the client invalidates it.
+        client.disconnect();
+        super.onStop();
+    }
+
+
 
 	/**
 	 * Touch listener to use for in-layout UI controls to delay hiding the
@@ -153,5 +190,46 @@ public class HUDActivity extends Activity {
 	private void delayedHide(int delayMillis) {
 		mHideHandler.removeCallbacks(mHideRunnable);
 		mHideHandler.postDelayed(mHideRunnable, delayMillis);
+	}
+
+	@Override
+	public void onConnectionFailed(ConnectionResult connectionResult) {
+		 if (connectionResult.hasResolution()) {
+	            try {
+	                // Start an Activity that tries to resolve the error
+	                connectionResult.startResolutionForResult(
+	                        this,
+	                        CONNECTION_FAILURE_RESOLUTION_REQUEST);
+	                /*
+	                 * Thrown if Google Play services canceled the original
+	                 * PendingIntent
+	                 */
+	            } catch (IntentSender.SendIntentException e) {
+	                // Log the error
+	                e.printStackTrace();
+	            }
+	        } else {
+	            /*
+	             * If no resolution is available, display a dialog to the
+	             * user with the error.
+	             */
+	            locationText.setText( "Error");
+	        }
+
+		
+	}
+
+	@Override
+	public void onConnected(Bundle connectionHint) {
+		 Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
+		currentLocation = client.getLastLocation();
+		locationText.setText(currentLocation.toString());
+	}
+
+	@Override
+	public void onDisconnected() {
+		 Toast.makeText(this, "Disconnected. Please re-connect.",
+	                Toast.LENGTH_SHORT).show();
+		
 	}
 }
