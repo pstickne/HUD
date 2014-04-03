@@ -1,8 +1,11 @@
 package com.uml.gpscarhud;
 
+import org.w3c.dom.Document;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.maps.model.LatLng;
 import com.uml.gpscarhud.util.SystemUiHider;
 
 import android.annotation.TargetApi;
@@ -12,6 +15,7 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -61,7 +65,13 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	 LocationClient client = null;
 	 
 	 Location currentLocation;
+	 
+	 /*
+	  * For testing South Campus coords.
+	  */
 
+	 private static final double southCampusLat = 42.642786;
+	 private static final double southCampusLong = -71.335007;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -224,6 +234,11 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		 Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
 		currentLocation = client.getLastLocation();
 		locationText.setText(currentLocation.toString());
+		GMapV2Direction md = new GMapV2Direction();
+		LatLng test = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+		LatLng southCampus = new LatLng(southCampusLat, southCampusLong);
+		Document doc = md.getDocument(test, southCampus, GMapV2Direction.MODE_DRIVING);
+		Log.d("HUD", doc.toString());
 	}
 
 	@Override
