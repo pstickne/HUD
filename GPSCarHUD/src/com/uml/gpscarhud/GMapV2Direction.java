@@ -13,6 +13,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -30,28 +31,40 @@ import android.util.Log;
 public class GMapV2Direction {
     public final static String MODE_DRIVING = "driving";
     public final static String MODE_WALKING = "walking";
+    
+    public static Document documentTest = null;
+    private static String url;
 
     public GMapV2Direction() { }
 
     public Document getDocument(LatLng start, LatLng end, String mode) {
-        String url = "http://maps.googleapis.com/maps/api/directions/xml?" 
+       url = "http://maps.googleapis.com/maps/api/directions/xml?" 
                 + "origin=" + start.latitude + "," + start.longitude  
                 + "&destination=" + end.latitude + "," + end.longitude 
                 + "&sensor=false&units=metric&mode=driving";
+        
+        new Thread(new Runnable() {
 
-        try {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpContext localContext = new BasicHttpContext();
-            HttpPost httpPost = new HttpPost(url);
-            HttpResponse response = httpClient.execute(httpPost, localContext);
-            InputStream in = response.getEntity().getContent();
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = builder.parse(in);
-            return doc;
-        } catch (Exception e) {
-            e.printStackTrace();
+        	public void run() {
+        	try {    
+        		HttpClient httpClient = new DefaultHttpClient();
+                HttpContext localContext = new BasicHttpContext();
+                HttpPost httpPost = new HttpPost(url);
+                HttpResponse response = httpClient.execute(httpPost, localContext);
+                InputStream in = response.getEntity().getContent();
+                DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                Document doc = builder.parse(in);
+                documentTest = doc;
+        	    } catch (Exception e) {  e.printStackTrace();
+        	}
+        	}
+        	 }).start();
+        
+        while( documentTest == null )
+        {
+        	
         }
-        return null;
+        return documentTest;
     }
 
     public String getDurationText (Document doc) {
