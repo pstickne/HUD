@@ -58,6 +58,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	private SystemUiHider mSystemUiHider;
 	
 	private static TextView locationText = null;
+	private static TextView directionText = null;
 	
 	 private final static int
      CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -82,6 +83,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
 		locationText = (TextView) findViewById(R.id.fullscreen_content);
+		directionText = (TextView) findViewById(R.id.fullscreen_directions);
 
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
@@ -238,6 +240,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		LatLng test = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
 		LatLng southCampus = new LatLng(southCampusLat, southCampusLong);
 		Document doc = md.getDocument(test, southCampus, GMapV2Direction.MODE_DRIVING);
+		directionText.setText(doc.getTextContent());
 		Log.d("HUD", doc.toString());
 	}
 

@@ -220,9 +220,10 @@ containing a value of this type.
         public static final int ic_plusone_tall_off_client=0x7f02001c;
     }
     public static final class id {
-        public static final int dummy_button=0x7f050007;
+        public static final int dummy_button=0x7f050008;
         public static final int fullscreen_content=0x7f050005;
-        public static final int fullscreen_content_controls=0x7f050006;
+        public static final int fullscreen_content_controls=0x7f050007;
+        public static final int fullscreen_directions=0x7f050006;
         public static final int hybrid=0x7f050004;
         public static final int none=0x7f050000;
         public static final int normal=0x7f050001;
@@ -333,6 +334,7 @@ containing a value of this type.
         public static final int common_signin_button_text_long=0x7f060013;
         public static final int dummy_button=0x7f06001c;
         public static final int dummy_content=0x7f06001d;
+        public static final int dummy_directions=0x7f06001e;
         /**  Location client code resources (prefix with location_client) 
          */
         public static final int location_client_powered_by_google=0x7f06001a;
