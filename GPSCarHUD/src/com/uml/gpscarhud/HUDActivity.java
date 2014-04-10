@@ -240,17 +240,14 @@ public class HUDActivity extends Activity implements
 		currentLocation = client.getLastLocation();
 		locationText.append("\n" + currentLocation.toString());
 		GMapV2Direction md = new GMapV2Direction();
-		LatLng test = new LatLng(currentLocation.getLatitude(),
-				currentLocation.getLongitude());
+		LatLng test = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
 		LatLng southCampus = new LatLng(southCampusLat, southCampusLong);
-		Document doc = md.getDocument(test, southCampus,
-				GMapV2Direction.MODE_DRIVING);
+		Document doc = md.getDocument(test, southCampus, GMapV2Direction.MODE_DRIVING);
 		if (doc != null) {
 			ArrayList<LatLng> directionPoint = md.getDirection(doc);
 
 			for (int i = 0; i < directionPoint.size(); i++) {
-					directionText.append("\n" + ((LatLng) directionPoint.get(i))
-							.toString());
+					directionText.append("\n" + ((LatLng) directionPoint.get(i)).toString());
 			}
 			Log.d("HUD", doc.toString());
 		}
