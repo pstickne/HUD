@@ -22,7 +22,7 @@
         android:gravity="center"
         android:keepScreenOn="true"
         android:text="@string/dummy_content"
-        android:textColor="#33b5e5"
+        android:textColor="#ffb5e5"
         android:textSize="20sp"
         android:textStyle="bold" />
     
@@ -33,7 +33,7 @@
         android:gravity="center"
         android:keepScreenOn="true"
         android:text="@string/dummy_directions"
-        android:textColor="#33b5e5"
+        android:textColor="#ffb5e5"
         android:textSize="15sp"
         android:textStyle="bold" />
      
@@ -47,7 +47,6 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/background_dark"
         android:fitsSystemWindows="true" >
 
         <LinearLayout
@@ -66,8 +65,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/dummy_button"
-                android:textColorLink="@android:color/background_dark" />
+                android:text="@string/dummy_button" />
 
         </LinearLayout>
     </FrameLayout>
