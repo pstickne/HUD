@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <PreferenceCategory
+        android:title="@string/pref_header_navigation">
+
+	    <EditTextPreference
+	        android:key="destination_text"
+	        android:title="@string/pref_title_destination" 
+	        android:summary=""
+	        android:defaultValue=""
+	        android:capitalize="words"
+	        android:inputType="textCapWords"
+	        android:singleLine="false" 
+	        android:maxLines="3"
+	        android:selectAllOnFocus="true" />
+	    
+	    <ListPreference
+	        android:key="destinationHistory"
+	        android:title="Destination History"
+	        android:summary="Previously saved destinations"
+	        />
+	    
+	    <Preference 
+	        android:key="launch_hud"
+	        android:title="@string/pref_title_navigate">
+	        <intent
+	            android:action="android.intent.action.VIEW"
+	            android:targetPackage="com.uml.gpscarhud"
+	            android:targetClass="com.uml.gpscarhud.HUDActivity"
+            />
+	   	</Preference>
+
+    </PreferenceCategory>
+
+    
+    <PreferenceCategory 
+        android:title="@string/pref_header_navigation_options">
+        
+		<CheckBoxPreference 
+	        android:key="avoid_highways_checkbox"
+	        android:title="@string/pref_title_avoid_highways"
+	        android:defaultValue="false" />
+	    
+	    <CheckBoxPreference 
+	        android:key="avoid_tolls_checkbox"
+	        android:title="@string/pref_title_avoid_tolls"
+	        android:defaultValue="false" />
+	    
+	    <CheckBoxPreference 
+	        android:key="avoid_uturns_checkbox"
+	        android:title="@string/pref_title_avoid_uturns"
+	        android:defaultValue="false" />
+	    
+	    <CheckBoxPreference 
+	        android:key="avoid_ferries_checkbox"
+	        android:title="@string/pref_title_avoid_ferries"
+	        android:defaultValue="false" />
+        
+    </PreferenceCategory>
+    
+
+</PreferenceScreen>

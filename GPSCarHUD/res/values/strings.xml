@@ -6,4 +6,18 @@
     <string name="dummy_content">Your Current Location is:</string>
     <string name="dummy_directions">Directions</string>
 
+    <string name="title_activity_main">GPS Car HUD</string>
+
+    <!-- Destination settings -->
+    <string name="pref_header_navigation">Navigation</string>
+    <string name="pref_title_destination">Destination Address</string>
+    <string name="pref_title_navigate">Navigate</string>
+
+    <!-- Avoidance settings -->
+    <string name="pref_header_navigation_options">Navigation Options</string>
+    <string name="pref_title_avoid_highways">Avoid Highways</string>
+    <string name="pref_title_avoid_tolls">Avoid Tolls</string>
+    <string name="pref_title_avoid_uturns">Avoid U-Turns</string>
+    <string name="pref_title_avoid_ferries">Avoid Ferries</string>
+    
 </resources>
