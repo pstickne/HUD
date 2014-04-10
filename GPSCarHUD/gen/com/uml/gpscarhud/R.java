@@ -221,12 +221,13 @@ containing a value of this type.
         public static final int rightturnsign=0x7f02001d;
     }
     public static final class id {
-        public static final int dummy_button=0x7f050009;
-        public static final int fullscreen_content=0x7f050006;
-        public static final int fullscreen_content_controls=0x7f050008;
-        public static final int fullscreen_directions=0x7f050007;
+        public static final int dummy_button=0x7f05000a;
+        public static final int fullscreen_content=0x7f050007;
+        public static final int fullscreen_content_controls=0x7f050009;
+        public static final int fullscreen_directions=0x7f050008;
         public static final int hybrid=0x7f050004;
         public static final int imViewAndroid=0x7f050005;
+        public static final int imViewAndroid2=0x7f050006;
         public static final int none=0x7f050000;
         public static final int normal=0x7f050001;
         public static final int satellite=0x7f050002;

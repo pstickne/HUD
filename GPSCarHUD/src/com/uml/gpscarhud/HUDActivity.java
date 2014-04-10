@@ -93,8 +93,8 @@ public class HUDActivity extends Activity implements
 		locationText = (TextView) findViewById(R.id.fullscreen_content);
 		directionText = (TextView) findViewById(R.id.fullscreen_directions);
 		
-		imViewAndroid = (ImageView) findViewById(R.id.imViewAndroid);
-		  imViewAndroid.setImageBitmap(flipImage(BitmapFactory.decodeResource(getResources(), R.drawable.rightturnsign),2));
+		imViewAndroid = (ImageView) findViewById(R.id.imViewAndroid2);
+		imViewAndroid.setImageBitmap(flipImage(BitmapFactory.decodeResource(getResources(), R.drawable.rightturnsign),1));
 
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
