@@ -59,11 +59,13 @@ int drawable ic_plusone_medium_off_client 0x7f020019
 int drawable ic_plusone_small_off_client 0x7f02001a
 int drawable ic_plusone_standard_off_client 0x7f02001b
 int drawable ic_plusone_tall_off_client 0x7f02001c
-int id dummy_button 0x7f050008
-int id fullscreen_content 0x7f050005
-int id fullscreen_content_controls 0x7f050007
-int id fullscreen_directions 0x7f050006
+int drawable rightturnsign 0x7f02001d
+int id dummy_button 0x7f050009
+int id fullscreen_content 0x7f050006
+int id fullscreen_content_controls 0x7f050008
+int id fullscreen_directions 0x7f050007
 int id hybrid 0x7f050004
+int id imViewAndroid 0x7f050005
 int id none 0x7f050000
 int id normal 0x7f050001
 int id satellite 0x7f050002

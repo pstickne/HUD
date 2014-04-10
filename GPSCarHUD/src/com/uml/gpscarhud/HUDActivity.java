@@ -7,6 +7,9 @@ import org.w3c.dom.Document;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.IntentSender;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +17,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,6 +72,8 @@ public class HUDActivity extends Activity implements
 	LocationClient client = null;
 
 	Location currentLocation;
+	
+	ImageView imViewAndroid;
 
 	/*
 	 * For testing South Campus coords.
@@ -86,6 +92,9 @@ public class HUDActivity extends Activity implements
 		final View contentView = findViewById(R.id.fullscreen_content);
 		locationText = (TextView) findViewById(R.id.fullscreen_content);
 		directionText = (TextView) findViewById(R.id.fullscreen_directions);
+		
+		imViewAndroid = (ImageView) findViewById(R.id.imViewAndroid);
+		  imViewAndroid.setImageBitmap(flipImage(BitmapFactory.decodeResource(getResources(), R.drawable.rightturnsign),2));
 
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
@@ -152,7 +161,31 @@ public class HUDActivity extends Activity implements
 
 		client = new LocationClient(this, this, this);
 	}
+	
+	 public static final int FLIP_VERTICAL = 1;
+	 public static final int FLIP_HORIZONTAL = 2;
 
+	 public Bitmap flipImage(Bitmap src, int type) {
+		  // create new matrix for transformation
+		  Matrix matrix = new Matrix();
+		  // if vertical
+		  if(type == FLIP_VERTICAL) {
+		   // y = y * -1
+		   matrix.preScale(1.0f, -1.0f);
+		  }
+		  // if horizontal
+		  else if(type == FLIP_HORIZONTAL) {
+		   // x = x * -1
+		   matrix.preScale(-1.0f, 1.0f);
+		   // unknown type
+		  } else {
+		   return null;
+		  }
+		 
+		  // return transformed image
+		  return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), matrix, true);
+		 }
+	
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
