@@ -1,5 +1,9 @@
 package com.uml.gpscarhud;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -8,12 +12,15 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.OrientationEventListener;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.uml.gpscarhud.api.Maneuvers;
+import com.uml.gpscarhud.api.Navigation;
 import com.uml.gpscarhud.views.ArrowView;
 import com.uml.gpscarhud.views.CompassView;
 import com.uml.gpscarhud.views.InstructionView;
@@ -43,6 +50,10 @@ public class HUDActivity extends Activity implements LocationListener
 	
 	private OrientationEventListener OEL			= null;
 	private LocationManager locationManager			= null;
+	
+	private LatLng southCampus = new LatLng(42.642786, -71.335007);
+	
+	private Navigation directions = new Navigation();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
@@ -87,6 +98,13 @@ public class HUDActivity extends Activity implements LocationListener
 		
 		viewSpeedometer.postInvalidate();
 		viewCompass.postInvalidate();
+		
+		directions.setDestination(southCampus);
+		
+		if (android.os.Build.VERSION.SDK_INT > 9) {
+		      StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+		      StrictMode.setThreadPolicy(policy);
+		    }
 	}
 
 	@Override
@@ -108,7 +126,12 @@ public class HUDActivity extends Activity implements LocationListener
 			OEL.enable();
 			
 		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, this);
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+		locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+		locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		Log.i("HUD", locationManager.getProviders(true).toString());
+		Log.i("HUD", "Now getting GPS updates.");
 	}
 	
 	@Override
@@ -121,10 +144,46 @@ public class HUDActivity extends Activity implements LocationListener
 		
 		locationManager.removeUpdates(this);
 	}
+	
+	private String getNextDirection(JSONObject direcs)
+	{
+		JSONObject firstStep = null;
+		String firstDirection = "";
+		try {
+			 JSONObject routes = direcs.getJSONArray("routes").getJSONObject(0);
+			 JSONObject leg = routes.getJSONArray("legs").getJSONObject(0);
+			 JSONArray steps = leg.getJSONArray("steps");
+			 firstStep = steps.getJSONObject(0);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if( firstStep == null )
+			return firstDirection;
+		
+		try {
+			firstDirection = firstStep.getString("html_instructions").replaceAll("<(.*?)*>", "");
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return firstDirection;
+	}
 
+	//Re-usable JSONObject, creating a new variable everytime in the method would be slow.
+	private JSONObject direcs = null;
+	
 	@Override
 	public void onLocationChanged(Location location) {
+		Log.i("HUD", "GPS update event occuring.");
+		directions.setSource(new LatLng(location.getLatitude(), location.getLongitude()));
+		direcs = directions.getDirections();
+		Log.i("HUD", getNextDirection(direcs));
 		
+		viewInstruction.setText(getNextDirection(direcs));
+		viewInstruction.postInvalidate();
 	}
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
