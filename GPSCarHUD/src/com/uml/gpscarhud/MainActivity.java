@@ -1,5 +1,8 @@
 package com.uml.gpscarhud;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -31,6 +34,45 @@ public class MainActivity extends PreferenceActivity
 		
 		// Set Preference Default Values
 		findPreference("destination_text").setSummary(getPreferences(MODE_PRIVATE).getString("destination_text", ""));
+		
+		// Set Preference Intents
+		findPreference("launch_hud").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Intent intent = new Intent(MainActivity.this, HUDActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				startActivity(intent);
+				return true;
+			}
+		});
+		findPreference("launch_navigation").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				String dest = getPreferences(MODE_PRIVATE).getString("destination_text", "");
+				
+				if( dest.length() > 0 )
+				{
+					Intent intent = new Intent(MainActivity.this, HUDActivity.class);
+					intent.putExtra("destination", dest);
+					intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+					startActivity(intent);
+				} else {
+					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+					builder
+						.setTitle(R.string.pref_error_title)
+						.setMessage(R.string.pref_error_msg)
+						.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+							}
+						})
+						.create().show();
+					return false;
+				}
+				return true;
+			}
+		});
 	}
 	
 	private Preference.OnPreferenceChangeListener strPrefChangeListener = new Preference.OnPreferenceChangeListener() {

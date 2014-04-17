@@ -25,11 +25,12 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int dummy_button=0x7f090003;
-        public static final int fullscreen_content=0x7f090000;
-        public static final int fullscreen_content_controls=0x7f090002;
-        public static final int fullscreen_directions=0x7f090001;
-        public static final int mainActivityTextView=0x7f090004;
+        public static final int HUD_button_orientation_lock=0x7f090000;
+        public static final int HUD_view_arrow=0x7f090002;
+        public static final int HUD_view_compass=0x7f090004;
+        public static final int HUD_view_instruction=0x7f090001;
+        public static final int HUD_view_speedometer=0x7f090003;
+        public static final int mainActivityTextView=0x7f090005;
     }
     public static final class integer {
         public static final int google_play_services_version=0x7f060001;
@@ -44,18 +45,29 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int dummy_button=0x7f070001;
         public static final int dummy_content=0x7f070002;
         public static final int dummy_directions=0x7f070003;
+        /**  HUD MODE 
+         */
+        public static final int orientation_locked=0x7f070011;
+        public static final int orientation_unlocked=0x7f070012;
+        public static final int pref_error_msg=0x7f070009;
+        public static final int pref_error_title=0x7f070008;
+        /**  PREFERENCES 
+ Car HUD 
+         */
+        public static final int pref_header_carHUD=0x7f070005;
         /**  Destination settings 
          */
-        public static final int pref_header_navigation=0x7f070005;
+        public static final int pref_header_destination=0x7f07000a;
         /**  Avoidance settings 
          */
-        public static final int pref_header_navigation_options=0x7f070008;
-        public static final int pref_title_avoid_ferries=0x7f07000c;
-        public static final int pref_title_avoid_highways=0x7f070009;
-        public static final int pref_title_avoid_tolls=0x7f07000a;
-        public static final int pref_title_avoid_uturns=0x7f07000b;
-        public static final int pref_title_destination=0x7f070006;
+        public static final int pref_header_navigation_options=0x7f07000c;
+        public static final int pref_title_avoid_ferries=0x7f070010;
+        public static final int pref_title_avoid_highways=0x7f07000d;
+        public static final int pref_title_avoid_tolls=0x7f07000e;
+        public static final int pref_title_avoid_uturns=0x7f07000f;
+        public static final int pref_title_destination=0x7f07000b;
         public static final int pref_title_navigate=0x7f070007;
+        public static final int pref_title_open_hud=0x7f070006;
         public static final int title_activity_main=0x7f070004;
     }
     public static final class style {
@@ -88,10 +100,11 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
  All customizations that are NOT specific to a particular API-level can go here. 
          */
         public static final int AppTheme=0x7f080001;
-        public static final int ButtonBar=0x7f080003;
-        public static final int ButtonBarButton=0x7f080004;
-        public static final int FullscreenActionBarStyle=0x7f080006;
-        public static final int FullscreenTheme=0x7f080002;
+        public static final int ButtonBar=0x7f080002;
+        public static final int ButtonBarButton=0x7f080003;
+        public static final int DarkTheme=0x7f080006;
+        public static final int FullscreenActionBarStyle=0x7f080007;
+        public static final int FullscreenTheme=0x7f080004;
         public static final int PreferencesTheme=0x7f080005;
     }
     public static final class xml {

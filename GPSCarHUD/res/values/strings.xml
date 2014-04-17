@@ -8,10 +8,17 @@
 
     <string name="title_activity_main">GPS Car HUD</string>
 
+    <!-- PREFERENCES -->
+    <!-- Car HUD -->
+    <string name="pref_header_carHUD">Car HUD</string>
+    <string name="pref_title_open_hud">Open HUD</string>
+    <string name="pref_title_navigate">Get Directions</string>
+    <string name="pref_error_title">Error</string>
+    <string name="pref_error_msg">Invalid Destination Address</string>
+
     <!-- Destination settings -->
-    <string name="pref_header_navigation">Navigation</string>
+    <string name="pref_header_destination">Destination</string>
     <string name="pref_title_destination">Destination Address</string>
-    <string name="pref_title_navigate">Navigate</string>
 
     <!-- Avoidance settings -->
     <string name="pref_header_navigation_options">Navigation Options</string>
@@ -20,4 +27,8 @@
     <string name="pref_title_avoid_uturns">Avoid U-Turns</string>
     <string name="pref_title_avoid_ferries">Avoid Ferries</string>
     
+    
+    <!-- HUD MODE -->
+    <string name="orientation_locked">Locked</string>
+    <string name="orientation_unlocked">Unlocked</string>
 </resources>
