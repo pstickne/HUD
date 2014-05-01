@@ -1,10 +1,14 @@
 package com.uml.gpscarhud;
 
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.SensorManager;
@@ -124,14 +128,48 @@ public class HUDActivity extends Activity implements LocationListener
 		
 		if( OEL != null && OEL.canDetectOrientation() )
 			OEL.enable();
-			
-		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-		locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-		locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		Log.i("HUD", locationManager.getProviders(true).toString());
-		Log.i("HUD", "Now getting GPS updates.");
+		
+		if( GPSenabled() )
+		{
+			locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+			locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+			Log.i("HUD", locationManager.getProviders(true).toString());
+			Log.i("HUD", "Now getting GPS updates.");
+		}
+		else
+		{
+			askToActivateGPS();
+		}
+	}
+	
+	private boolean GPSenabled()
+	{
+		final LocationManager mgr = (LocationManager)getSystemService(LOCATION_SERVICE);
+	    if ( mgr == null ) return false;
+	    final List<String> providers = mgr.getAllProviders();
+	    if ( providers == null ) return false;
+	    return providers.contains(LocationManager.GPS_PROVIDER);
+	}
+	
+	private void askToActivateGPS() {
+	    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	    builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+	           .setCancelable(false)
+	           .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+	               public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+	                   startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+	               }
+	           })
+	           .setNegativeButton("No", new DialogInterface.OnClickListener() {
+	               public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+	                    dialog.cancel();
+	               }
+	           });
+	    final AlertDialog alert = builder.create();
+	    alert.show();
 	}
 	
 	@Override
@@ -155,7 +193,7 @@ public class HUDActivity extends Activity implements LocationListener
 			 JSONArray steps = leg.getJSONArray("steps");
 			 firstStep = steps.getJSONObject(0);
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		
@@ -165,7 +203,6 @@ public class HUDActivity extends Activity implements LocationListener
 		try {
 			firstDirection = firstStep.getString("html_instructions").replaceAll("<(.*?)*>", "");
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -177,13 +214,16 @@ public class HUDActivity extends Activity implements LocationListener
 	
 	@Override
 	public void onLocationChanged(Location location) {
-		Log.i("HUD", "GPS update event occuring.");
-		directions.setSource(new LatLng(location.getLatitude(), location.getLongitude()));
-		direcs = directions.getDirections();
-		Log.i("HUD", getNextDirection(direcs));
+		if( location != null )
+		{
+			Log.i("HUD", "GPS update event occuring.");
+			directions.setSource(new LatLng(location.getLatitude(), location.getLongitude()));
+			direcs = directions.getDirections();
+			Log.i("HUD", getNextDirection(direcs));
 		
-		viewInstruction.setText(getNextDirection(direcs));
-		viewInstruction.postInvalidate();
+			viewInstruction.setText(getNextDirection(direcs));
+			viewInstruction.postInvalidate();
+		}
 	}
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
