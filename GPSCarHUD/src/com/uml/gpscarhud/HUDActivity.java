@@ -1,6 +1,8 @@
 package com.uml.gpscarhud;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,6 +14,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.SensorManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -183,7 +187,9 @@ public class HUDActivity extends Activity implements LocationListener
 		locationManager.removeUpdates(this);
 	}
 	
-	private String getNextDirection(JSONObject direcs)
+	private int stepCount = 0;
+	
+	private String getNextDirection(JSONObject direcs, String currentStreetName)
 	{
 		JSONObject firstStep = null;
 		String firstDirection = "";
@@ -191,7 +197,7 @@ public class HUDActivity extends Activity implements LocationListener
 			 JSONObject routes = direcs.getJSONArray("routes").getJSONObject(0);
 			 JSONObject leg = routes.getJSONArray("legs").getJSONObject(0);
 			 JSONArray steps = leg.getJSONArray("steps");
-			 firstStep = steps.getJSONObject(0);
+			 firstStep = steps.getJSONObject(stepCount);
 		} catch (JSONException e) {
 			
 			e.printStackTrace();
@@ -202,6 +208,11 @@ public class HUDActivity extends Activity implements LocationListener
 		
 		try {
 			firstDirection = firstStep.getString("html_instructions").replaceAll("<(.*?)*>", "");
+			if( firstDirection.contains(currentStreetName) )
+			{
+				stepCount++;
+				firstDirection = getNextDirection(direcs, currentStreetName);
+			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -211,7 +222,7 @@ public class HUDActivity extends Activity implements LocationListener
 
 	//Re-usable JSONObject, creating a new variable everytime in the method would be slow.
 	private JSONObject direcs = null;
-	
+	String currentStreet;
 	@Override
 	public void onLocationChanged(Location location) {
 		if( location != null )
@@ -219,9 +230,12 @@ public class HUDActivity extends Activity implements LocationListener
 			Log.i("HUD", "GPS update event occuring.");
 			directions.setSource(new LatLng(location.getLatitude(), location.getLongitude()));
 			direcs = directions.getDirections();
-			Log.i("HUD", getNextDirection(direcs));
+			
+			currentStreet = getCurrentStreetName(location);
+			
+			Log.i("HUD", getNextDirection(direcs, currentStreet));
 		
-			viewInstruction.setText(getNextDirection(direcs));
+			viewInstruction.setText(getNextDirection(direcs, currentStreet));
 			viewInstruction.postInvalidate();
 		}
 	}
@@ -233,5 +247,23 @@ public class HUDActivity extends Activity implements LocationListener
 	}
 	@Override
 	public void onProviderDisabled(String provider) {
+	}
+
+	private String getCurrentStreetName(Location location)
+	{
+		String streetName = "";
+
+		Geocoder gcd = new Geocoder(this, Locale.getDefault());
+		List<Address> addresses = null;
+		try {
+			addresses = gcd.getFromLocation(location.getLatitude(), location.getLongitude(),100);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (addresses.size() > 0 && addresses != null) {
+			streetName = addresses.get(0).getFeatureName();
+		}
+
+			return streetName;
 	}
 }
