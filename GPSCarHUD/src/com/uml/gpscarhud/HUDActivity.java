@@ -21,6 +21,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.OrientationEventListener;
 import android.widget.CompoundButton;
@@ -28,7 +29,7 @@ import android.widget.Switch;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.uml.gpscarhud.api.Maneuvers;
-import com.uml.gpscarhud.api.Navigation;
+import com.uml.gpscarhud.api.NavigationSevice;
 import com.uml.gpscarhud.views.ArrowView;
 import com.uml.gpscarhud.views.CompassView;
 import com.uml.gpscarhud.views.InstructionView;
@@ -61,7 +62,7 @@ public class HUDActivity extends Activity implements LocationListener
 	
 	private LatLng southCampus = new LatLng(42.642786, -71.335007);
 	
-	private Navigation directions = new Navigation();
+	private NavigationSevice directions = new NavigationSevice();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
@@ -151,29 +152,30 @@ public class HUDActivity extends Activity implements LocationListener
 	
 	private boolean GPSenabled()
 	{
-		final LocationManager mgr = (LocationManager)getSystemService(LOCATION_SERVICE);
+		LocationManager mgr = (LocationManager)getSystemService(LOCATION_SERVICE);
 	    if ( mgr == null ) return false;
-	    final List<String> providers = mgr.getAllProviders();
+	    List<String> providers = mgr.getAllProviders();
 	    if ( providers == null ) return false;
 	    return providers.contains(LocationManager.GPS_PROVIDER);
 	}
 	
 	private void askToActivateGPS() {
-	    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	    AlertDialog.Builder builder = new AlertDialog.Builder(this);
 	    builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
 	           .setCancelable(false)
 	           .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-	               public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-	                   startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-	               }
-	           })
-	           .setNegativeButton("No", new DialogInterface.OnClickListener() {
-	               public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-	                    dialog.cancel();
-	               }
-	           });
-	    final AlertDialog alert = builder.create();
-	    alert.show();
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+					}
+				})
+				.setNegativeButton("No", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				});
+	    builder.create().show();
 	}
 	
 	@Override

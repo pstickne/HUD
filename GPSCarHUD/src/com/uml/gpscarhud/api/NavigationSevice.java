@@ -14,17 +14,17 @@ import org.json.JSONObject;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public class Navigation
+public class NavigationSevice
 {
 	private LatLng source = null;
 	private LatLng destination = null;
 	
-	public Navigation()
+	public NavigationSevice()
 	{
 		
 	}
 	
-	public Navigation(LatLng s, LatLng d)
+	public NavigationSevice(LatLng s, LatLng d)
 	{
 		source = s;
 		destination = d;
