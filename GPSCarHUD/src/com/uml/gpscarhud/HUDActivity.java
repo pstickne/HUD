@@ -13,9 +13,11 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.OrientationEventListener;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
+import com.uml.gpscarhud.api.Maneuvers;
 import com.uml.gpscarhud.api.NavigationDirections;
 import com.uml.gpscarhud.api.NavigationSevice;
 import com.uml.gpscarhud.nav.NavLocation;
@@ -75,7 +77,10 @@ public class HUDActivity extends Activity implements LocationListener
 				orientationLock = isChecked;
 				
 				if( orientationLock )
+				{
 					lockedOrientation = currentOrientation;
+					btnOrientationLock.setVisibility(View.GONE);
+				}
 			}
 		});
 		
@@ -93,6 +98,16 @@ public class HUDActivity extends Activity implements LocationListener
 		if( getIntent().getExtras() != null )
 			destination = getIntent().getExtras().getString("destination");
 		Log.i("onCreate", "Destination: " + ( destination == null ? "NULL" : destination));
+		
+		viewInstruction.setText("Somethingggg");
+		viewInstruction.postInvalidate();
+		viewTime.setText("22 minutes");
+		viewTime.postInvalidate();
+		viewDistance.setText("600 ft");
+		viewDistance.postInvalidate();
+		
+		viewArrow.setArrow(Maneuvers.getManeuver("turn-right"));
+		viewArrow.postInvalidate();
 	}
 	
 	@Override
