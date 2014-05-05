@@ -30,11 +30,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.uml.gpscarhud.api.Maneuvers;
 import com.uml.gpscarhud.api.NavigationSevice;
 import com.uml.gpscarhud.views.ArrowView;
-import com.uml.gpscarhud.views.CompassView;
-//import com.uml.gpscarhud.views.DistanceView;
+import com.uml.gpscarhud.views.DistanceView;
 import com.uml.gpscarhud.views.InstructionView;
-import com.uml.gpscarhud.views.SpeedometerView;
-//import com.uml.gpscarhud.views.TimeToDestinationView;
+import com.uml.gpscarhud.views.TimeToDestinationView;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -50,8 +48,8 @@ public class HUDActivity extends Activity implements LocationListener
 	
 	private InstructionView       viewInstruction	= null;
 	private ArrowView 		      viewArrow		= null;
-//	private DistanceView          viewDistance	= null;
-//	private TimeToDestinationView viewTime	= null;
+	private DistanceView          viewDistance	= null;
+	private TimeToDestinationView viewTime	= null;
 	
 	private Switch		btnOrientationLock			= null;
 	private boolean		orientationLock				= false;
@@ -72,8 +70,8 @@ public class HUDActivity extends Activity implements LocationListener
 		
 		setContentView(R.layout.activity_hud);
 		
-//		viewTime = (TimeToDestinationView) findViewById(R.id.HUD_view_time);
-//		viewDistance = (DistanceView) findViewById(R.id.HUD_view_distance);
+		viewTime = (TimeToDestinationView) findViewById(R.id.HUD_view_time);
+		viewDistance = (DistanceView) findViewById(R.id.HUD_view_distance);
 		viewArrow 		= (ArrowView) findViewById(R.id.HUD_view_arrow);
 		viewInstruction = (InstructionView) findViewById(R.id.HUD_view_instruction);
 		
