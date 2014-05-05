@@ -4,60 +4,74 @@
     android:layout_height="fill_parent"
     android:background="#000000"
     android:orientation="vertical"
-    android:weightSum="10"
     tools:context=".HUDActivity" >
-    
-	<Switch
-	    android:id="@+id/HUD_button_orientation_lock"
-	    android:layout_width="wrap_content"
-	    android:layout_height="10dp"
-	    android:layout_gravity="right"
-	    android:checked="false"
-	    android:textOn="@string/orientation_locked"
-	    android:textOff="@string/orientation_unlocked"
-	    android:textSize="15sp"
-	    android:background="#CCCCCC"
-	    />
-		
-    <com.uml.gpscarhud.views.InstructionView 
-        android:id="@+id/HUD_view_instruction"
+
+    <Switch
+        android:id="@+id/HUD_button_orientation_lock"
+        android:layout_width="wrap_content"
+        android:layout_height="10dp"
+        android:layout_gravity="right"
+        android:background="#CCCCCC"
+        android:checked="false"
+        android:textOff="@string/orientation_unlocked"
+        android:textOn="@string/orientation_locked"
+        android:textSize="15sp" />
+
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_weight="3"
         android:layout_gravity="center"
-		android:layout_marginTop="10dp"
-        android:textSize="20sp"
-        style="@style/DarkTheme"
-        android:background="#ABABEE"
-        />
-     
-    <LinearLayout 
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:weightSum="2" >
+
+        <com.uml.gpscarhud.views.TimeToDestinationView
+            android:id="@+id/HUD_view_time"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="#0000FF" />
+
+        <com.uml.gpscarhud.views.DistanceView
+            android:id="@+id/HUD_view_distance"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="#00FF00" />
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="6"
-        android:weightSum="2"
+        android:layout_weight="7"
+        android:baselineAligned="false"
         android:orientation="horizontal"
-        android:baselineAligned="false">
-		
-	    <com.uml.gpscarhud.views.ArrowView 
-	        android:id="@+id/HUD_view_arrow"
-	        android:layout_width="0dp"
-	        android:layout_weight="1"
-	        android:layout_height="fill_parent"
-	        android:layout_gravity="center"
-	        android:background="#0000FF"
-	        />
-	    
-	    <com.uml.gpscarhud.views.SpeedometerView
-	        android:id="@+id/HUD_view_speedometer"
-	        android:layout_width="0dp"
-	        android:layout_weight="1"
-	        android:layout_height="fill_parent"
-	        android:layout_gravity="center"
-	        android:background="#00FF00"
-	         />
+        android:weightSum="2" >
+
+        <com.uml.gpscarhud.views.ArrowView
+            android:id="@+id/HUD_view_arrow"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="#FF0000" />
+
+        <com.uml.gpscarhud.views.InstructionView
+            android:id="@+id/HUD_view_instruction"
+            style="@style/DarkTheme"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="#ABABEE" />
     </LinearLayout>
-    
+
+    <!--
+    Not implementing Compass for now.
     <com.uml.gpscarhud.views.CompassView 
         android:id="@+id/HUD_view_compass"
         android:layout_width="fill_parent"
@@ -66,5 +80,6 @@
         android:layout_gravity="center"
         android:background="#FF0000"
         />
-    
+    -->
+
 </LinearLayout>
