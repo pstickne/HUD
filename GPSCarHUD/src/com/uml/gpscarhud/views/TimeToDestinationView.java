@@ -1,5 +1,6 @@
 package com.uml.gpscarhud.views;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -10,6 +11,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+@SuppressLint("DrawAllocation")
 public class TimeToDestinationView extends View {
 	
 	private String text = null;
@@ -38,7 +40,7 @@ public class TimeToDestinationView extends View {
 		textpainter.setAntiAlias(true);
 		textpainter.setColor(Color.RED);
 		textpainter.setAlpha(255);
-		textpainter.setTextSize(150);
+		textpainter.setTextSize(110);
 	}
 	
 	public void setText(String t)

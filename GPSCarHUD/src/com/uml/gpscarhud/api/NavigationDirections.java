@@ -58,6 +58,12 @@ public class NavigationDirections
 		calcStep();
 		return currentStep.getManeuver();
 	}
+	public String getDistance() {
+		return (int)( 20 * Math.random() + 1 ) + " miles";
+	}
+	public String getDuration() {
+		return (int)( 20 * Math.random() + 1 ) + " minutes";
+	}
 	public NavLocation getNextEndLocation() {
 		calcStep();
 		return currentStep.getEndAddress();

@@ -13,7 +13,7 @@ import android.view.View;
 public class DistanceView extends View {
 	
 	private String text = null;
-	TextPaint textpainter = null;
+	TextPaint paint = null;
 	StaticLayout textLayout = null;
 	
 	public DistanceView(Context context) 
@@ -34,22 +34,17 @@ public class DistanceView extends View {
 	
 	private void init()
 	{
-		textpainter = new TextPaint();
-		textpainter.setAntiAlias(true);
-		textpainter.setColor(Color.RED);
-		textpainter.setAlpha(255);
-		textpainter.setTextSize(175);
+		paint = new TextPaint();
+		paint.setAntiAlias(true);
+		paint.setColor(Color.RED);
+		paint.setAlpha(255);
+		paint.setTextSize(110);
 	}
 	
 	public void setText(String t)
 	{
 		text = t;
 		invalidate();
-	}
-	
-	public void setTextSize(float size)
-	{
-		textpainter.setTextSize(size);
 	}
 	
 	@Override
@@ -61,7 +56,7 @@ public class DistanceView extends View {
 
 		if( text != null )
 		{
-			textLayout = new StaticLayout(text, textpainter, canvas.getWidth(), Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
+			textLayout = new StaticLayout(text, paint, canvas.getWidth(), Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
 			super.onDraw(canvas);
 			textLayout.draw(canvas);
 		}

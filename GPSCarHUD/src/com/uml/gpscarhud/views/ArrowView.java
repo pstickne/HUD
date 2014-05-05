@@ -3,6 +3,7 @@ package com.uml.gpscarhud.views;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -42,7 +43,16 @@ public class ArrowView extends View
 	protected void onDraw(Canvas canvas)
 	{
 		if( bitmap != null )
-			canvas.drawBitmap(bitmap, 0, 0, null);
+		{
+			float scaleWidth = ((float) canvas.getWidth()) / bitmap.getWidth() * 0.5f;
+			float scaleHeight = ((float) canvas.getHeight()) / bitmap.getHeight() * 0.5f;
+			Matrix matrix = new Matrix();
+			
+			matrix.postScale(scaleWidth, scaleHeight);
+			
+			bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
+			canvas.drawBitmap(bitmap, canvas.getWidth()/4, canvas.getHeight()/4, null);
+		}
 		Log.i("ArrowView", "onDraw()");
 	}
 }

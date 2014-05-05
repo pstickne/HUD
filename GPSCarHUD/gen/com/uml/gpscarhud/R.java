@@ -26,10 +26,10 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     }
     public static final class id {
         public static final int HUD_button_orientation_lock=0x7f090000;
-        public static final int HUD_view_arrow=0x7f090003;
-        public static final int HUD_view_distance=0x7f090002;
-        public static final int HUD_view_instruction=0x7f090004;
-        public static final int HUD_view_time=0x7f090001;
+        public static final int HUD_view_arrow=0x7f090004;
+        public static final int HUD_view_distance=0x7f090001;
+        public static final int HUD_view_instruction=0x7f090003;
+        public static final int HUD_view_time=0x7f090002;
         public static final int mainActivityTextView=0x7f090005;
     }
     public static final class integer {

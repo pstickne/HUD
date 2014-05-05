@@ -1,5 +1,6 @@
 package com.uml.gpscarhud.views;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -10,10 +11,11 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+@SuppressLint("DrawAllocation")
 public class InstructionView extends View 
 {
 	private String text = null;
-	TextPaint textpainter = null;
+	TextPaint paint = null;
 	StaticLayout textLayout = null;
 	
 	public InstructionView(Context context) 
@@ -34,22 +36,17 @@ public class InstructionView extends View
 	
 	private void init()
 	{
-		textpainter = new TextPaint();
-		textpainter.setAntiAlias(true);
-		textpainter.setColor(Color.RED);
-		textpainter.setAlpha(255);
-		textpainter.setTextSize(120);
+		paint = new TextPaint();
+		paint.setAntiAlias(true);
+		paint.setColor(Color.RED);
+		paint.setAlpha(255);
+		paint.setTextSize(120);
 	}
 	
 	public void setText(String t)
 	{
 		text = t;
 		invalidate();
-	}
-	
-	public void setTextSize(float size)
-	{
-		textpainter.setTextSize(size);
 	}
 	
 	@Override
@@ -60,7 +57,7 @@ public class InstructionView extends View
 		canvas.scale(-1, 1);
 
 		if( text != null ) {
-			textLayout = new StaticLayout(text, textpainter, canvas.getWidth(), Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
+			textLayout = new StaticLayout(text, paint, canvas.getWidth(), Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
 			super.onDraw(canvas);
 			textLayout.draw(canvas);
 		}

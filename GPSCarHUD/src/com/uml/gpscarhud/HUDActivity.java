@@ -1,11 +1,16 @@
 package com.uml.gpscarhud;
 
+import java.io.IOException;
+import java.util.List;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.SensorManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -99,15 +104,10 @@ public class HUDActivity extends Activity implements LocationListener
 			destination = getIntent().getExtras().getString("destination");
 		Log.i("onCreate", "Destination: " + ( destination == null ? "NULL" : destination));
 		
-		viewInstruction.setText("Somethingggg");
-		viewInstruction.postInvalidate();
-		viewTime.setText("22 minutes");
-		viewTime.postInvalidate();
-		viewDistance.setText("600 ft");
-		viewDistance.postInvalidate();
-		
-		viewArrow.setArrow(Maneuvers.getManeuver("turn-right"));
-		viewArrow.postInvalidate();
+		viewInstruction.setText("Waiting for GPS Signal...");
+		viewTime.setText("");
+		viewDistance.setText("");
+		viewArrow.setArrow(null);
 	}
 	
 	@Override
@@ -165,7 +165,41 @@ public class HUDActivity extends Activity implements LocationListener
 			NavLocation myNavLoc = new NavLocation(location);
 			
 			if( isBetterLocation(myNavLoc, lastKnownLocation) )
+			{
 				lastKnownLocation = myNavLoc;
+
+				if( foundFirstLocation == false )
+				{
+					foundFirstLocation = true;
+					
+					Geocoder geo = new Geocoder(this);
+					Address address = null;
+
+					try {
+						address = geo.getFromLocationName(destination, 1).get(0);
+						navService.setSource(new NavLocation(lastKnownLocation));
+						navService.setDestination(new NavLocation(address.getLatitude(), address.getLongitude())); 
+						
+						navDirections.loadRoute(navService.getDirections());
+						navDirections.startNavigation();
+						
+					} catch (IOException e) {
+						e.printStackTrace();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					navDirections.setCurrentLocation(lastKnownLocation);
+					
+					viewArrow.setArrow(Maneuvers.getManeuver(navDirections.getNextManeuver()));
+					viewDistance.setText(navDirections.getDistance());
+					viewTime.setText(navDirections.getDuration());
+					viewInstruction.setText(navDirections.getNextInstruction());
+				}
+				navDirections.setCurrentLocation(lastKnownLocation);
+			}
 		}
 	}
 	@Override
