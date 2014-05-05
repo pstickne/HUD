@@ -41,7 +41,8 @@ public class ArrowView extends View
 	@Override
 	protected void onDraw(Canvas canvas)
 	{
-		canvas.drawBitmap(bitmap, 0, 0, null);
+		if( bitmap != null )
+			canvas.drawBitmap(bitmap, 0, 0, null);
 		Log.i("ArrowView", "onDraw()");
 	}
 }

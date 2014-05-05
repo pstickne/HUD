@@ -51,8 +51,10 @@ public class InstructionView extends View
 		canvas.translate(getWidth(), 0);
 		canvas.scale(-1, 1);
 
-		super.onDraw(canvas);
-		canvas.drawText(text, 0, 50, paint);
+		if( text != null ) {
+			super.onDraw(canvas);
+			canvas.drawText(text, 0, 50, paint);
+		}
 		
 		canvas.restore();
 		Log.i("InstructionView", "onDraw()");

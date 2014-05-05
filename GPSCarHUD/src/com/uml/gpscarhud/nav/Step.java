@@ -8,8 +8,8 @@ public class Step
 {
 	private Distance distance = null;
 	private Duration duration = null;
-	private Location start_loc = null;
-	private Location end_loc = null;
+	private NavLocation start_loc = null;
+	private NavLocation end_loc = null;
 	private String html_instruction = null;
 	private String maneuver = null;
 	
@@ -25,8 +25,8 @@ public class Step
 		try {
 			if( json.has("distance") )			distance = new Distance(json.getJSONObject("distance"));
 			if( json.has("duration") ) 			duration = new Duration(json.getJSONObject("duration"));
-			if( json.has("start_location") )	start_loc = new Location(json.getJSONObject("start_location"));
-			if( json.has("end_location") )		end_loc = new Location(json.getJSONObject("end_location"));
+			if( json.has("start_location") )	start_loc = new NavLocation(json.getJSONObject("start_location"));
+			if( json.has("end_location") )		end_loc = new NavLocation(json.getJSONObject("end_location"));
 			
 			if( json.has("html_instructions") )	{
 				html_instruction = json.getString("html_instructions");
@@ -58,10 +58,10 @@ public class Step
 	public Duration getDuration() {
 		return duration;
 	}
-	public Location getStartAddress() {
+	public NavLocation getStartAddress() {
 		return start_loc;
 	}
-	public Location getEndAddress() {
+	public NavLocation getEndAddress() {
 		return end_loc;
 	}
 	public String getInstruction() {

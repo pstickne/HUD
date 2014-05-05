@@ -3,7 +3,7 @@ package com.uml.gpscarhud.api;
 import org.json.JSONObject;
 
 import com.uml.gpscarhud.nav.Leg;
-import com.uml.gpscarhud.nav.Location;
+import com.uml.gpscarhud.nav.NavLocation;
 import com.uml.gpscarhud.nav.Route;
 import com.uml.gpscarhud.nav.Step;
 
@@ -16,15 +16,8 @@ public class NavigationDirections
 	private Leg currentLeg = null;
 	private Step currentStep = null;
 	
-	private Location currentLoc = null;
+	private NavLocation currentLoc = null;
 	
-	private static NavigationDirections _instance = null;
-	public static NavigationDirections instance()
-	{
-		if( _instance == null )
-			_instance = new NavigationDirections();
-		return _instance;
-	}
 	public NavigationDirections()
 	{
 		
@@ -65,12 +58,12 @@ public class NavigationDirections
 		calcStep();
 		return currentStep.getManeuver();
 	}
-	public Location getNextEndLocation() {
+	public NavLocation getNextEndLocation() {
 		calcStep();
 		return currentStep.getEndAddress();
 	}
 	
-	public void setCurrentLocation(Location current)
+	public void setCurrentLocation(NavLocation current)
 	{
 		currentLoc = current;
 	}

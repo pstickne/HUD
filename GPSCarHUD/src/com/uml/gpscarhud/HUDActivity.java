@@ -1,21 +1,11 @@
 package com.uml.gpscarhud;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.SensorManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -26,9 +16,9 @@ import android.view.OrientationEventListener;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.uml.gpscarhud.api.Maneuvers;
+import com.uml.gpscarhud.api.NavigationDirections;
 import com.uml.gpscarhud.api.NavigationSevice;
+import com.uml.gpscarhud.nav.NavLocation;
 import com.uml.gpscarhud.views.ArrowView;
 import com.uml.gpscarhud.views.DistanceView;
 import com.uml.gpscarhud.views.InstructionView;
@@ -42,26 +32,28 @@ import com.uml.gpscarhud.views.TimeToDestinationView;
  */
 public class HUDActivity extends Activity implements LocationListener
 {
-	private String 	destination 	= null;
-	private long	minTime			= 3000;
-	private float 	minDistance		= 5.0f; 
+	private String 		destination 		= null;
+	private long		minTime				= 3000;
+	private float 		minDistance			= 5.0f; 
+	private NavLocation	lastKnownLocation 	= null;
+	private final int 	MINUTE 				= 60 * 1000;
 	
 	private InstructionView       viewInstruction	= null;
-	private ArrowView 		      viewArrow		= null;
-	private DistanceView          viewDistance	= null;
-	private TimeToDestinationView viewTime	= null;
+	private ArrowView 		      viewArrow			= null;
+	private DistanceView          viewDistance		= null;
+	private TimeToDestinationView viewTime			= null;
 	
 	private Switch		btnOrientationLock			= null;
 	private boolean		orientationLock				= false;
+	private boolean		foundFirstLocation			= false;
 	private int 		currentOrientation			= ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
 	private int 		lockedOrientation			= ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
 	
 	private OrientationEventListener OEL			= null;
 	private LocationManager locationManager			= null;
 	
-	private LatLng southCampus = new LatLng(42.642786, -71.335007);
-	
-	private NavigationSevice directions = new NavigationSevice();
+	private NavigationSevice navService = new NavigationSevice();
+	private NavigationDirections navDirections = new NavigationDirections();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
@@ -101,16 +93,8 @@ public class HUDActivity extends Activity implements LocationListener
 		if( getIntent().getExtras() != null )
 			destination = getIntent().getExtras().getString("destination");
 		Log.i("onCreate", "Destination: " + ( destination == null ? "NULL" : destination));
-		
-		viewInstruction.setText("Somethingggg");
-		viewInstruction.postInvalidate();
-		
-		viewArrow.setArrow(Maneuvers.getManeuver("turn-right"));
-		viewArrow.postInvalidate();
-		
-		directions.setDestination(southCampus);
 	}
-
+	
 	@Override
 	protected void onResume()
 	{
@@ -118,37 +102,20 @@ public class HUDActivity extends Activity implements LocationListener
 		
 		if( OEL != null && OEL.canDetectOrientation() )
 			OEL.enable();
+
+		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 		
-		if( GPSenabled() )
+		if( locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) )
 		{
-			locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
-			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-			locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-			locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-			Log.i("HUD", locationManager.getProviders(true).toString());
-			Log.i("HUD", "Now getting GPS updates.");
+			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, this);
 		}
 		else
 		{
-			askToActivateGPS();
-		}
-	}
-	
-	private boolean GPSenabled()
-	{
-		LocationManager mgr = (LocationManager)getSystemService(LOCATION_SERVICE);
-	    if ( mgr == null ) return false;
-	    List<String> providers = mgr.getAllProviders();
-	    if ( providers == null ) return false;
-	    return providers.contains(LocationManager.GPS_PROVIDER);
-	}
-	
-	private void askToActivateGPS() {
-	    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-	    builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
-	           .setCancelable(false)
-	           .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder
+				.setMessage("GPS service is disabled, do you want to enable it?")
+				.setCancelable(false)
+				.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
@@ -158,10 +125,12 @@ public class HUDActivity extends Activity implements LocationListener
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.dismiss();
+						finish();
 					}
 				});
-	    builder.create().show();
-	}
+			builder.create().show();
+		}
+	}	
 	
 	@Override
 	protected void onPause()
@@ -173,88 +142,60 @@ public class HUDActivity extends Activity implements LocationListener
 		
 		locationManager.removeUpdates(this);
 	}
-	
-	private int stepCount = 0;
-	
-	private String getNextDirection(JSONObject direcs, String currentStreetName)
-	{
-		JSONObject firstStep = null;
-		String firstDirection = "";
-		try {
-			 JSONObject routes = direcs.getJSONArray("routes").getJSONObject(0);
-			 JSONObject leg = routes.getJSONArray("legs").getJSONObject(0);
-			 JSONArray steps = leg.getJSONArray("steps");
-			 firstStep = steps.getJSONObject(stepCount);
-		} catch (JSONException e) {
-			
-			e.printStackTrace();
-		}
-		
-		if( firstStep == null )
-			return firstDirection;
-		
-		try {
-			firstDirection = firstStep.getString("html_instructions").replaceAll("<(.*?)*>", "");
-			if( firstDirection.contains(currentStreetName) )
-			{
-				stepCount++;
-				firstDirection = getNextDirection(direcs, currentStreetName);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		
-		return firstDirection;
-	}
 
-	//Re-usable JSONObject, creating a new variable everytime in the method would be slow.
-	private JSONObject direcs = null;
-	String currentStreet;
 	@Override
 	public void onLocationChanged(Location location) {
-		if( location != null )
+		if( location != null ) 
 		{
-			Log.i("HUD", "GPS update event occuring.");
-			directions.setSource(new LatLng(location.getLatitude(), location.getLongitude()));
-			try {
-				direcs = directions.getDirections();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			NavLocation myNavLoc = new NavLocation(location);
 			
-			currentStreet = getCurrentStreetName(location);
-			
-			Log.i("HUD", getNextDirection(direcs, currentStreet));
-		
-			viewInstruction.setText(getNextDirection(direcs, currentStreet));
-			viewInstruction.postInvalidate();
+			if( isBetterLocation(myNavLoc, lastKnownLocation) )
+				lastKnownLocation = myNavLoc;
 		}
 	}
 	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
+	public void onProviderDisabled(String provider) {
 	}
 	@Override
 	public void onProviderEnabled(String provider) {
 	}
 	@Override
-	public void onProviderDisabled(String provider) {
+	public void onStatusChanged(String provider, int status, Bundle extras) {
 	}
 
-	private String getCurrentStreetName(Location location)
+	public NavLocation getLastKnownLocation() {
+		return lastKnownLocation;
+	}
+	
+	public boolean isBetterLocation(NavLocation location, NavLocation currentBestLocation)
 	{
-		String streetName = "";
-
-		Geocoder gcd = new Geocoder(this, Locale.getDefault());
-		List<Address> addresses = null;
-		try {
-			addresses = gcd.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		if ( addresses != null && addresses.size() > 0 ) {
-			streetName = addresses.get(0).getFeatureName();
-		}
-
-		return streetName;
+		if( currentBestLocation == null )
+			return true;
+		
+		long timeDelta = location.getTime() - currentBestLocation.getTime();
+		boolean isSignificantlyNewer = timeDelta > MINUTE;
+		boolean isSignificantlyOlder = timeDelta < -MINUTE;
+		boolean isNewer = timeDelta > 0;
+		
+		if( isSignificantlyNewer )
+			return true;
+		if( isSignificantlyOlder )
+			return false;
+		
+		int accuracyDelta = (int)(location.getAccuracy() - currentBestLocation.getAccuracy());
+		boolean isLessAccurate = accuracyDelta > 0;
+		boolean isMoreAccurate = accuracyDelta < 0;
+		boolean isSignificantlyLessAccurate = accuracyDelta > 200;
+		boolean isFromSameProvider = (( location.getProvider() == null ) ?
+											(currentBestLocation.getProvider() == null) :
+											location.getProvider().equals(currentBestLocation.getProvider()) );
+		
+		if( isMoreAccurate ) 
+			return true;
+		if( isNewer && !isLessAccurate ) 
+			return true;
+		if( isNewer && !isSignificantlyLessAccurate && isFromSameProvider )
+			return true;
+		return false;
 	}
 }

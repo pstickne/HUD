@@ -12,30 +12,30 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.android.gms.maps.model.LatLng;
+import com.uml.gpscarhud.nav.NavLocation;
 
 public class NavigationSevice
 {
-	private LatLng source = null;
-	private LatLng destination = null;
+	private NavLocation source = null;
+	private NavLocation destination = null;
 	
 	public NavigationSevice()
 	{
 		
 	}
 	
-	public NavigationSevice(LatLng s, LatLng d)
+	public NavigationSevice(NavLocation s, NavLocation d)
 	{
 		source = s;
 		destination = d;
 	}
 	
-	public void setSource(LatLng s)
+	public void setSource(NavLocation s)
 	{
 		source = s;
 	}
 	
-	public void setDestination(LatLng d)
+	public void setDestination(NavLocation d)
 	{
 		destination = d;
 	}
@@ -67,8 +67,8 @@ public class NavigationSevice
 					sb.append("destination=%f,%f&");
 					sb.append("sensor=false");
 					
-					str = String.format( sb.toString() , source.latitude, source.longitude, 
-														 destination.latitude, destination.longitude);
+					str = String.format( sb.toString() , source.getLat(), source.getLng(), 
+														 destination.getLat(), destination.getLng());
 					
 					client = new DefaultHttpClient();
 					request = new HttpGet(str);
