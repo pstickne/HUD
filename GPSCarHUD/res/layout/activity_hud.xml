@@ -32,7 +32,7 @@
             android:layout_height="fill_parent"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:background="#0000FF" />
+            android:background="#000000" />
 
         <com.uml.gpscarhud.views.DistanceView
             android:id="@+id/HUD_view_distance"
@@ -40,7 +40,7 @@
             android:layout_height="fill_parent"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:background="#00FF00" />
+            android:background="#000000" />
     </LinearLayout>
 
     <LinearLayout
@@ -57,7 +57,7 @@
             android:layout_height="fill_parent"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:background="#FF0000" />
+            android:background="#000000" />
 
         <com.uml.gpscarhud.views.InstructionView
             android:id="@+id/HUD_view_instruction"
@@ -66,7 +66,7 @@
             android:layout_height="fill_parent"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:background="#ABABEE" />
+            android:background="#000000" />
     </LinearLayout>
 
     <!--
