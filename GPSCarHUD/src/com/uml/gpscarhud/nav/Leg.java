@@ -27,14 +27,12 @@ public class Leg
 			JSONArray jsonSteps = null;
 			JSONObject jsonStep = null;
 			
-			distance = new Distance(json.getJSONObject("distance"));
-			duration = new Duration(json.getJSONObject("duration"));
-			
-			start_addr = json.getString("start_address");
-			end_addr = json.getString("end_address");
-			
-			start_loc = new Location(json.getJSONObject("start_location"));
-			end_loc = new Location(json.getJSONObject("end_location"));
+			if( json.has("distance") )			distance = new Distance(json.getJSONObject("distance"));
+			if( json.has("duration") )			duration = new Duration(json.getJSONObject("duration"));
+			if( json.has("start_address") )		start_addr = json.getString("start_address");
+			if( json.has("end_address") )		end_addr = json.getString("end_address");
+			if( json.has("start_location") )	start_loc = new Location(json.getJSONObject("start_location"));
+			if( json.has("end_location") )		end_loc = new Location(json.getJSONObject("end_location"));
 			
 			jsonSteps = json.getJSONArray("steps");
 			for( int i = 0; i < jsonSteps.length(); i++ )

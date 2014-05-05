@@ -11,7 +11,6 @@
     <!-- PREFERENCES -->
     <!-- Car HUD -->
     <string name="pref_header_carHUD">Car HUD</string>
-    <string name="pref_title_open_hud">Open HUD</string>
     <string name="pref_title_navigate">Get Directions</string>
     <string name="pref_error_title">Error</string>
     <string name="pref_error_msg">Invalid Destination Address</string>

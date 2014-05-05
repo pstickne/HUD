@@ -40,54 +40,67 @@ public class NavigationSevice
 		destination = d;
 	}
 	
-	public JSONObject getDirections()
+	public JSONObject getDirections() throws InterruptedException
 	{
-		JSONObject result = null;
+		final NavigationInternalService nis = new NavigationInternalService();
+		nis.result = null;
 		
-		String str = null;
-		StringBuilder sb = null;
-		HttpClient client = null;
-		HttpGet request = null;
-		HttpResponse response = null;
-		BufferedReader in = null;
-		
-		if( source == null || destination == null )
-			return null;
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
 
-		try {
-			
-			sb = new StringBuilder("");
-			sb.append("http://maps.googleapis.com/maps/api/directions/json?");
-			sb.append("origin=%f,%f&");
-			sb.append("destination=%f,%f&");
-			sb.append("sensor=false");
-			
-			str = String.format( sb.toString() , source.latitude, source.longitude, 
-												 destination.latitude, destination.longitude);
-			
-			client = new DefaultHttpClient();
-			request = new HttpGet(str);
-			response = client.execute(request);
-			
-			in = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-			sb = new StringBuilder("");
-			String nl = System.getProperty("line.separator");
-			
-			while( (str = in.readLine()) != null )
-				sb.append(str + nl);
-			
-			in.close();
-			str = sb.toString();
-			result = new JSONObject(str);
-			
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-
-		return result;
+				String str = null;
+				StringBuilder sb = null;
+				HttpClient client = null;
+				HttpGet request = null;
+				HttpResponse response = null;
+				BufferedReader in = null;
+				
+				if( source == null || destination == null )
+					return;
+				
+				try {
+					
+					sb = new StringBuilder("");
+					sb.append("http://maps.googleapis.com/maps/api/directions/json?");
+					sb.append("origin=%f,%f&");
+					sb.append("destination=%f,%f&");
+					sb.append("sensor=false");
+					
+					str = String.format( sb.toString() , source.latitude, source.longitude, 
+														 destination.latitude, destination.longitude);
+					
+					client = new DefaultHttpClient();
+					request = new HttpGet(str);
+					response = client.execute(request);
+					
+					in = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+					sb = new StringBuilder("");
+					String nl = System.getProperty("line.separator");
+					
+					while( (str = in.readLine()) != null )
+						sb.append(str + nl);
+					
+					in.close();
+					str = sb.toString();
+					nis.result = new JSONObject(str);
+					
+				} catch (ClientProtocolException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		t.start();
+		t.join();
+		return nis.result;
 	}
+}
+
+class NavigationInternalService 
+{
+	JSONObject result;
 }

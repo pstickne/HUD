@@ -5,11 +5,6 @@
         android:title="@string/pref_header_carHUD">
 	
         <Preference 
-	        android:key="launch_hud"
-	        android:title="@string/pref_title_open_hud"
-	        android:summary="View default HUD overlay" />
-	
-        <Preference 
 	        android:key="launch_navigation"
 	        android:title="@string/pref_title_navigate" 
 	        android:summary="Navigate to destination supplied below" />

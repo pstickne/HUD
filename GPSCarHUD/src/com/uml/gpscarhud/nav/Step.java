@@ -25,7 +25,6 @@ public class Step
 		try {
 			if( json.has("distance") )			distance = new Distance(json.getJSONObject("distance"));
 			if( json.has("duration") ) 			duration = new Duration(json.getJSONObject("duration"));
-			
 			if( json.has("start_location") )	start_loc = new Location(json.getJSONObject("start_location"));
 			if( json.has("end_location") )		end_loc = new Location(json.getJSONObject("end_location"));
 			

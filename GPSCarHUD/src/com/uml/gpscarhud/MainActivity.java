@@ -36,15 +36,6 @@ public class MainActivity extends PreferenceActivity
 		findPreference("destination_text").setSummary(getPreferences(MODE_PRIVATE).getString("destination_text", ""));
 		
 		// Set Preference Intents
-		findPreference("launch_hud").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Intent intent = new Intent(MainActivity.this, HUDActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-				startActivity(intent);
-				return true;
-			}
-		});
 		findPreference("launch_navigation").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {

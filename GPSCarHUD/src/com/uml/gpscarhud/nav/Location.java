@@ -48,8 +48,8 @@ public class Location
 		android.location.Location thisLoc = new android.location.Location("");
 		android.location.Location otherLoc = new android.location.Location("");
 		
-		thisLoc.setLatitude(this.lat);
-		thisLoc.setLongitude(this.lng);
+		thisLoc.setLatitude(lat);
+		thisLoc.setLongitude(lng);
 		
 		otherLoc.setLatitude(other.getLat());
 		otherLoc.setLongitude(other.getLng());

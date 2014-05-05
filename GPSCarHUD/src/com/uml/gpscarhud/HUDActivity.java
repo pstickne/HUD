@@ -20,7 +20,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.OrientationEventListener;
@@ -99,6 +98,10 @@ public class HUDActivity extends Activity implements LocationListener
 			}
 		};
 		
+		if( getIntent().getExtras() != null )
+			destination = getIntent().getExtras().getString("destination");
+		Log.i("onCreate", "Destination: " + ( destination == null ? "NULL" : destination));
+		
 		viewInstruction.setText("Somethingggg");
 		viewInstruction.postInvalidate();
 		
@@ -109,23 +112,8 @@ public class HUDActivity extends Activity implements LocationListener
 		viewCompass.postInvalidate();
 		
 		directions.setDestination(southCampus);
-		
-		if (android.os.Build.VERSION.SDK_INT > 9) {
-		      StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-		      StrictMode.setThreadPolicy(policy);
-		    }
 	}
 
-	@Override
-	protected void onNewIntent(Intent intent) 
-	{
-		super.onNewIntent(intent);
-		
-		if( intent.getExtras() != null )
-			destination = intent.getExtras().getString("destination");
-		Log.i("onNewIntent", "Destination: " + ( destination == null ? "NULL" : destination));
-	}
-	
 	@Override
 	protected void onResume()
 	{
@@ -231,7 +219,11 @@ public class HUDActivity extends Activity implements LocationListener
 		{
 			Log.i("HUD", "GPS update event occuring.");
 			directions.setSource(new LatLng(location.getLatitude(), location.getLongitude()));
-			direcs = directions.getDirections();
+			try {
+				direcs = directions.getDirections();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			
 			currentStreet = getCurrentStreetName(location);
 			
@@ -258,14 +250,14 @@ public class HUDActivity extends Activity implements LocationListener
 		Geocoder gcd = new Geocoder(this, Locale.getDefault());
 		List<Address> addresses = null;
 		try {
-			addresses = gcd.getFromLocation(location.getLatitude(), location.getLongitude(),100);
+			addresses = gcd.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if (addresses.size() > 0 && addresses != null) {
+		if ( addresses != null && addresses.size() > 0 ) {
 			streetName = addresses.get(0).getFeatureName();
 		}
 
-			return streetName;
+		return streetName;
 	}
 }

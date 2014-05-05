@@ -47,27 +47,26 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int dummy_directions=0x7f070003;
         /**  HUD MODE 
          */
-        public static final int orientation_locked=0x7f070011;
-        public static final int orientation_unlocked=0x7f070012;
-        public static final int pref_error_msg=0x7f070009;
-        public static final int pref_error_title=0x7f070008;
+        public static final int orientation_locked=0x7f070010;
+        public static final int orientation_unlocked=0x7f070011;
+        public static final int pref_error_msg=0x7f070008;
+        public static final int pref_error_title=0x7f070007;
         /**  PREFERENCES 
  Car HUD 
          */
         public static final int pref_header_carHUD=0x7f070005;
         /**  Destination settings 
          */
-        public static final int pref_header_destination=0x7f07000a;
+        public static final int pref_header_destination=0x7f070009;
         /**  Avoidance settings 
          */
-        public static final int pref_header_navigation_options=0x7f07000c;
-        public static final int pref_title_avoid_ferries=0x7f070010;
-        public static final int pref_title_avoid_highways=0x7f07000d;
-        public static final int pref_title_avoid_tolls=0x7f07000e;
-        public static final int pref_title_avoid_uturns=0x7f07000f;
-        public static final int pref_title_destination=0x7f07000b;
-        public static final int pref_title_navigate=0x7f070007;
-        public static final int pref_title_open_hud=0x7f070006;
+        public static final int pref_header_navigation_options=0x7f07000b;
+        public static final int pref_title_avoid_ferries=0x7f07000f;
+        public static final int pref_title_avoid_highways=0x7f07000c;
+        public static final int pref_title_avoid_tolls=0x7f07000d;
+        public static final int pref_title_avoid_uturns=0x7f07000e;
+        public static final int pref_title_destination=0x7f07000a;
+        public static final int pref_title_navigate=0x7f070006;
         public static final int title_activity_main=0x7f070004;
     }
     public static final class style {

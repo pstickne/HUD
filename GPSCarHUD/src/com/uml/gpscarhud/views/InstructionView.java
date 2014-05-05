@@ -35,17 +35,12 @@ public class InstructionView extends View
 		paint.setAntiAlias(true);
 		paint.setColor(Color.RED);
 		paint.setAlpha(255);
-		paint.setTextSize(50);
+		paint.setTextSize(70);
 	}
 	
 	public void setText(String t)
 	{
-		Log.i("SETTEXT 1", t);
-		text = "";
-		for( int i = t.length() - 1; i >= 0; i-- )
-			text += t.charAt(i);
-
-		Log.i("SETTEXT 2", text);
+		text = t;
 		invalidate();
 	}
 	
