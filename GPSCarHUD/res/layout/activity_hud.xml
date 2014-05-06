@@ -34,7 +34,7 @@
             android:layout_weight="1"
             android:background="#000000" />
         
-        <com.uml.gpscarhud.views.TimeToDestinationView
+        <com.uml.gpscarhud.views.ArrivalTimeView
             android:id="@+id/HUD_view_time"
             android:layout_width="0dp"
             android:layout_height="fill_parent"

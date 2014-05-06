@@ -29,10 +29,10 @@ public class Duration
 		_dInt = i;
 	}
 	
-	public String getDurationText() {
+	public String text() {
 		return _dStr;
 	}
-	public int getDurationInt() {
+	public int val() {
 		return _dInt;
 	}
 }

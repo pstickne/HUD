@@ -1,10 +1,16 @@
 package com.uml.gpscarhud;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.json.JSONException;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -18,6 +24,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.OrientationEventListener;
 import android.view.View;
@@ -28,10 +35,10 @@ import com.uml.gpscarhud.api.Maneuvers;
 import com.uml.gpscarhud.api.NavigationDirections;
 import com.uml.gpscarhud.api.NavigationSevice;
 import com.uml.gpscarhud.nav.NavLocation;
+import com.uml.gpscarhud.views.ArrivalTimeView;
 import com.uml.gpscarhud.views.ArrowView;
 import com.uml.gpscarhud.views.DistanceView;
 import com.uml.gpscarhud.views.InstructionView;
-import com.uml.gpscarhud.views.TimeToDestinationView;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -39,30 +46,35 @@ import com.uml.gpscarhud.views.TimeToDestinationView;
  * 
  * @see SystemUiHider
  */
+@SuppressLint("SimpleDateFormat")
 public class HUDActivity extends Activity implements LocationListener
 {
 	private String 		destination 		= null;
-	private long		minTime				= 3000;
-	private float 		minDistance			= 5.0f; 
 	private NavLocation	lastKnownLocation 	= null;
-	private final int 	MINUTE 				= 60 * 1000 / 4;
+	private final int 	MINUTE 				= 60 * 1000;
+	private long		minTime				= MINUTE / 2;
+	private float 		minDistance			= 5.0f; 
 	
-	private InstructionView       viewInstruction	= null;
-	private ArrowView 		      viewArrow			= null;
-	private DistanceView          viewDistance		= null;
-	private TimeToDestinationView viewTime			= null;
+	private InstructionView		viewInstruction		= null;
+	private ArrowView			viewArrow			= null;
+	private DistanceView		viewDistance		= null;
+	private ArrivalTimeView		viewTime			= null;
 	
 	private Switch		btnOrientationLock			= null;
 	private boolean		orientationLock				= false;
 	private boolean		foundFirstLocation			= false;
+	private boolean 	ttsWarnBeforeTurn			= false;
+	private boolean		ttsWarnAtTurn				= false;
 	private int 		currentOrientation			= ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
 	private int 		lockedOrientation			= ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
 	
 	private OrientationEventListener OEL			= null;
+	private TextToSpeech TTS						= null;
 	private LocationManager locationManager			= null;
 	
 	private NavigationSevice navService = new NavigationSevice();
 	private NavigationDirections navDirections = new NavigationDirections();
+	private NavigationDirections navDirectionsInternal = new NavigationDirections();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
@@ -71,25 +83,13 @@ public class HUDActivity extends Activity implements LocationListener
 		
 		setContentView(R.layout.activity_hud);
 		
-		viewTime = (TimeToDestinationView) findViewById(R.id.HUD_view_time);
+		viewTime = (ArrivalTimeView) findViewById(R.id.HUD_view_time);
 		viewDistance = (DistanceView) findViewById(R.id.HUD_view_distance);
 		viewArrow 		= (ArrowView) findViewById(R.id.HUD_view_arrow);
 		viewInstruction = (InstructionView) findViewById(R.id.HUD_view_instruction);
 		
 		btnOrientationLock = (Switch) findViewById(R.id.HUD_button_orientation_lock);
 		
-		btnOrientationLock.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				orientationLock = isChecked;
-				
-				if( orientationLock )
-				{
-					lockedOrientation = currentOrientation;
-					btnOrientationLock.setVisibility(View.GONE);
-				}
-			}
-		});
 		
 		OEL = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
 			@Override
@@ -101,6 +101,21 @@ public class HUDActivity extends Activity implements LocationListener
 				else					setRequestedOrientation(currentOrientation);
 			}
 		};
+		btnOrientationLock.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				orientationLock = isChecked;
+				
+				if( orientationLock )
+				{
+					lockedOrientation = currentOrientation;
+					btnOrientationLock.setVisibility(View.GONE);
+					
+					if( OEL != null )
+						OEL.disable();
+				}
+			}
+		});
 		
 		if( getIntent().getExtras() != null )
 			destination = getIntent().getExtras().getString("destination");
@@ -120,11 +135,19 @@ public class HUDActivity extends Activity implements LocationListener
 		if( OEL != null && OEL.canDetectOrientation() )
 			OEL.enable();
 
+		TTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+			@Override
+			public void onInit(int status) {
+				if( status == TextToSpeech.SUCCESS )
+					TTS.setLanguage(Locale.getDefault());
+			}
+		});
+		
 		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 		
 		if( locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) )
 		{
-			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 0, this);
+			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, this);
 		}
 		else
 		{
@@ -157,12 +180,20 @@ public class HUDActivity extends Activity implements LocationListener
 		if( OEL != null && OEL.canDetectOrientation() )
 			OEL.disable();
 		
+		if( TTS != null ) {
+			TTS.stop();
+			TTS.shutdown();
+		}
+
 		locationManager.removeUpdates(this);
 	}
 
 	@Override
 	public void onLocationChanged(Location location) {
 		Log.i("HUDActivity", "onLocationChanged()");
+		
+		TTS.speak("Getting updated location", TextToSpeech.QUEUE_ADD, null);
+		
 		if( location != null ) 
 		{
 			NavLocation myNavLoc = new NavLocation(location);
@@ -199,9 +230,8 @@ public class HUDActivity extends Activity implements LocationListener
 						}
 						
 						address = addresses.get(0);
-						navService.setSource(new NavLocation(lastKnownLocation));
+						navService.setSource(lastKnownLocation);
 						navService.setDestination(new NavLocation(address.getLatitude(), address.getLongitude())); 
-						
 						navDirections.loadRoute(navService.getDirections());
 						navDirections.startNavigation();
 
@@ -217,12 +247,46 @@ public class HUDActivity extends Activity implements LocationListener
 				}
 				else
 				{
-					navDirections.setCurrentLocation(lastKnownLocation);
-					
-					viewTime.setText(navDirections.getDuration());
-					viewDistance.setText(navDirections.getDistance());
-					viewInstruction.setText(navDirections.getNextInstruction());
-					viewArrow.setArrow(Maneuvers.getManeuver(navDirections.getNextManeuver()));
+					try {
+						
+						// Get internal step progress
+						navService.setSource(lastKnownLocation);
+						navService.setDestination(navDirections.getNextEndLocation());
+						navDirectionsInternal.loadRoute(navService.getDirections());
+						navDirectionsInternal.startNavigation();
+						
+						viewInstruction.setText(navDirections.getNextInstruction());
+						viewArrow.setArrow(Maneuvers.getManeuver(navDirections.getNextManeuver()));
+						viewTime.setText( "Arrive at: " + 
+								(new SimpleDateFormat("hh:mm a").format(
+										new Date(System.currentTimeMillis() + 
+												 (navDirections.getDuration().val() * 1000)))));
+						viewDistance.setText(navDirectionsInternal.getLeg().getDistance().text());
+						
+						// Text To Speach warnings
+						if( !ttsWarnAtTurn && navDirectionsInternal.getLeg().getDistance().val() <= 30 )
+						{
+							ttsWarnAtTurn = true;
+							TTS.speak(navDirections.getNextInstruction(), TextToSpeech.QUEUE_ADD, null);
+							navDirections.nextStep();
+							new Timer().schedule(new TimerTask() {
+								@Override
+								public void run() {
+									TTS.speak(navDirections.getNextInstruction(), TextToSpeech.QUEUE_ADD, null);
+								}
+							}, 20000);
+						}
+						if( !ttsWarnBeforeTurn && navDirectionsInternal.getLeg().getDistance().val() <= 325 )
+						{
+							ttsWarnBeforeTurn = true;
+							TTS.speak("In 0.2 miles, " + navDirections.getNextInstruction(), TextToSpeech.QUEUE_ADD, null);
+						}
+						
+					} catch (JSONException e) {
+						e.printStackTrace();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}

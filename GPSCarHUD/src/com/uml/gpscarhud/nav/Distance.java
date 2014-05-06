@@ -29,10 +29,10 @@ public class Distance
 		_dInt = i;
 	}
 	
-	public String getDistanceText() {
+	public String text() {
 		return _dStr;
 	}
-	public int getDistanceInt() {
+	public int val() {
 		return _dInt;
 	}
 }

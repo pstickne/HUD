@@ -12,23 +12,23 @@ import android.util.Log;
 import android.view.View;
 
 @SuppressLint("DrawAllocation")
-public class TimeToDestinationView extends View {
+public class ArrivalTimeView extends View {
 	
 	private String text = null;
 	TextPaint textpainter = null;
 	StaticLayout textLayout = null;
 	
-	public TimeToDestinationView(Context context) 
+	public ArrivalTimeView(Context context) 
 	{
 		super(context);
 		init();
 	}
-	public TimeToDestinationView(Context context, AttributeSet attrs)
+	public ArrivalTimeView(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
 		init();
 	}
-	public TimeToDestinationView(Context context, AttributeSet attrs, int defStyle)
+	public ArrivalTimeView(Context context, AttributeSet attrs, int defStyle)
 	{
 		super(context, attrs, defStyle);
 		init();
@@ -69,7 +69,7 @@ public class TimeToDestinationView extends View {
 		}
 		
 		canvas.restore();
-		Log.i("TimeToDestinationView", "onDraw()");
+		Log.i("ArrivalTimeView", "onDraw()");
 	}
 	
 }

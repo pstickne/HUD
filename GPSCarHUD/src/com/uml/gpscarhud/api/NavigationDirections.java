@@ -3,6 +3,8 @@ package com.uml.gpscarhud.api;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.uml.gpscarhud.nav.Distance;
+import com.uml.gpscarhud.nav.Duration;
 import com.uml.gpscarhud.nav.Leg;
 import com.uml.gpscarhud.nav.NavLocation;
 import com.uml.gpscarhud.nav.Route;
@@ -14,10 +16,6 @@ public class NavigationDirections
 	private int stepIndex = 0;
 	
 	private Route route = null;
-	private Leg currentLeg = null;
-	private Step currentStep = null;
-	
-	private NavLocation currentLoc = null;
 	
 	public NavigationDirections()
 	{
@@ -38,44 +36,16 @@ public class NavigationDirections
 		stepIndex = 0;
 	}
 	
-	private void calcStep()
-	{
-		currentLeg = route.getLegs().get(legIndex);
-		currentStep = currentLeg.getSteps().get(stepIndex);
-	}
 	public void nextStep() {
 		stepIndex++;
 	}
 
-	public Route getRoute() {
-		calcStep();
-		return route;
-	}
-	public String getNextInstruction() {
-		calcStep();
-		return currentStep.getInstruction();
-	}
-	public String getNextManeuver() {
-		calcStep();
-		return currentStep.getManeuver();
-	}
-	public String getDistance() {
-		calcStep();
-		return currentStep.getDistance().getDistanceText();
-	}
-	public String getDuration() {
-		calcStep();
-		return currentStep.getDuration().getDurationText();
-	}
-	public NavLocation getNextEndLocation() {
-		calcStep();
-		return currentStep.getEndAddress();
-	}
-	
-	public void setCurrentLocation(NavLocation current)
-	{
-		currentLoc = current;
-	}
-	
-	
+	public Route getRoute()						{	return route;								}
+	public Leg getLeg() 						{	return getRoute().getLegs().get(legIndex);	}
+	public Step getStep() 						{	return getLeg().getSteps().get(stepIndex);	}
+	public String getNextInstruction() 			{	return getStep().getInstruction();			}
+	public String getNextManeuver() 			{	return getStep().getManeuver();				}
+	public Distance getDistance() 				{	return getStep().getDistance();				}
+	public Duration getDuration() 				{	return getStep().getDuration();				}
+	public NavLocation getNextEndLocation() 	{	return getStep().getEndAddress();			}
 }
