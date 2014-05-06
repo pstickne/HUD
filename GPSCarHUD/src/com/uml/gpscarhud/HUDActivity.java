@@ -192,8 +192,6 @@ public class HUDActivity extends Activity implements LocationListener
 	public void onLocationChanged(Location location) {
 		Log.i("HUDActivity", "onLocationChanged()");
 		
-		TTS.speak("Getting updated location", TextToSpeech.QUEUE_ADD, null);
-		
 		if( location != null ) 
 		{
 			NavLocation myNavLoc = new NavLocation(location);
