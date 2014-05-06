@@ -14,9 +14,10 @@ import android.view.View;
 @SuppressLint("DrawAllocation")
 public class InstructionView extends View 
 {
+	private int width = 10;
 	private String text = null;
-	TextPaint paint = null;
-	StaticLayout textLayout = null;
+	private TextPaint paint = null;
+	private StaticLayout textLayout = null;
 	
 	public InstructionView(Context context) 
 	{
@@ -41,23 +42,28 @@ public class InstructionView extends View
 		paint.setColor(Color.RED);
 		paint.setAlpha(255);
 		paint.setTextSize(72);
+		
+		invalidate();
 	}
 	
 	public void setText(String t)
 	{
 		text = t;
+		if( text != null )
+			textLayout = new StaticLayout(text, paint, width, Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
 		invalidate();
 	}
 	
 	@Override
 	protected void onDraw(Canvas canvas)
 	{
+		width = canvas.getWidth();
+		
 		canvas.save();
-		canvas.translate(getWidth(), 0);
+		canvas.translate(width, 0);
 		canvas.scale(-1, 1);
 
 		if( text != null ) {
-			textLayout = new StaticLayout(text, paint, canvas.getWidth(), Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
 			super.onDraw(canvas);
 			textLayout.draw(canvas);
 		}

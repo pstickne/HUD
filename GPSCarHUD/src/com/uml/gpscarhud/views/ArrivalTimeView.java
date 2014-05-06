@@ -12,11 +12,12 @@ import android.util.Log;
 import android.view.View;
 
 @SuppressLint("DrawAllocation")
-public class ArrivalTimeView extends View {
-	
+public class ArrivalTimeView extends View
+{
+	private int width = 10;
 	private String text = null;
-	TextPaint textpainter = null;
-	StaticLayout textLayout = null;
+	private TextPaint textpainter = null;
+	private StaticLayout textLayout = null;
 	
 	public ArrivalTimeView(Context context) 
 	{
@@ -41,11 +42,15 @@ public class ArrivalTimeView extends View {
 		textpainter.setColor(Color.RED);
 		textpainter.setAlpha(255);
 		textpainter.setTextSize(80);
+		
+		invalidate();
 	}
 	
 	public void setText(String t)
 	{
 		text = t;
+		if( text != null )
+			textLayout = new StaticLayout(text, textpainter, width, Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
 		invalidate();
 	}
 	
@@ -57,13 +62,14 @@ public class ArrivalTimeView extends View {
 	@Override
 	protected void onDraw(Canvas canvas)
 	{
+		width = canvas.getWidth();
+		
 		canvas.save();
-		canvas.translate(getWidth(), 0);
+		canvas.translate(width, 0);
 		canvas.scale(-1, 1);
 
 		if( text != null )
 		{
-			textLayout = new StaticLayout(text, textpainter, canvas.getWidth(), Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
 			super.onDraw(canvas);
 			textLayout.draw(canvas);
 		}
