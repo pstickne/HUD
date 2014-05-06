@@ -44,6 +44,8 @@ public class DistanceView extends View {
 	public void setText(String t)
 	{
 		text = t;
+		if( text != null )
+			textLayout = new StaticLayout(text, paint, this.getWidth(), Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
 		invalidate();
 	}
 	
@@ -56,7 +58,6 @@ public class DistanceView extends View {
 
 		if( text != null )
 		{
-			textLayout = new StaticLayout(text, paint, canvas.getWidth(), Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
 			super.onDraw(canvas);
 			textLayout.draw(canvas);
 		}

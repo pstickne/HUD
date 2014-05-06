@@ -46,6 +46,8 @@ public class ArrivalTimeView extends View {
 	public void setText(String t)
 	{
 		text = t;
+		if( text != null )
+			textLayout = new StaticLayout(text, textpainter, this.getWidth(), Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
 		invalidate();
 	}
 	
@@ -63,7 +65,6 @@ public class ArrivalTimeView extends View {
 
 		if( text != null )
 		{
-			textLayout = new StaticLayout(text, textpainter, canvas.getWidth(), Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
 			super.onDraw(canvas);
 			textLayout.draw(canvas);
 		}
