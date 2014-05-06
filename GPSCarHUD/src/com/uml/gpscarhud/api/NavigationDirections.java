@@ -1,5 +1,6 @@
 package com.uml.gpscarhud.api;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.uml.gpscarhud.nav.Leg;
@@ -23,9 +24,9 @@ public class NavigationDirections
 		
 	}
 	
-	public void loadRoute(JSONObject json)
+	public void loadRoute(JSONObject json) throws JSONException
 	{
-		route = new Route(json);
+		route = new Route(json.getJSONArray("routes").getJSONObject(0));
 	}
 	
 	public void startNavigation()
@@ -59,10 +60,12 @@ public class NavigationDirections
 		return currentStep.getManeuver();
 	}
 	public String getDistance() {
-		return (int)( 20 * Math.random() + 1 ) + " miles";
+		calcStep();
+		return currentStep.getDistance().getDistanceText();
 	}
 	public String getDuration() {
-		return (int)( 20 * Math.random() + 1 ) + " minutes";
+		calcStep();
+		return currentStep.getDuration().getDurationText();
 	}
 	public NavLocation getNextEndLocation() {
 		calcStep();

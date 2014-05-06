@@ -23,10 +23,12 @@ public class Leg
 	
 	public Leg(JSONObject json)
 	{
+		JSONArray jsonSteps = null;
+		JSONObject jsonStep = null;
+		
+		steps = new ArrayList<Step>();
+		
 		try {
-			JSONArray jsonSteps = null;
-			JSONObject jsonStep = null;
-			
 			if( json.has("distance") )			distance = new Distance(json.getJSONObject("distance"));
 			if( json.has("duration") )			duration = new Duration(json.getJSONObject("duration"));
 			if( json.has("start_address") )		start_addr = json.getString("start_address");

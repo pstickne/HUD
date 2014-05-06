@@ -3,6 +3,8 @@ package com.uml.gpscarhud;
 import java.io.IOException;
 import java.util.List;
 
+import org.json.JSONException;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -43,7 +45,7 @@ public class HUDActivity extends Activity implements LocationListener
 	private long		minTime				= 3000;
 	private float 		minDistance			= 5.0f; 
 	private NavLocation	lastKnownLocation 	= null;
-	private final int 	MINUTE 				= 60 * 1000;
+	private final int 	MINUTE 				= 60 * 1000 / 4;
 	
 	private InstructionView       viewInstruction	= null;
 	private ArrowView 		      viewArrow			= null;
@@ -122,7 +124,7 @@ public class HUDActivity extends Activity implements LocationListener
 		
 		if( locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) )
 		{
-			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, this);
+			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 0, this);
 		}
 		else
 		{
@@ -160,6 +162,7 @@ public class HUDActivity extends Activity implements LocationListener
 
 	@Override
 	public void onLocationChanged(Location location) {
+		Log.i("HUDActivity", "onLocationChanged()");
 		if( location != null ) 
 		{
 			NavLocation myNavLoc = new NavLocation(location);
@@ -173,19 +176,42 @@ public class HUDActivity extends Activity implements LocationListener
 					foundFirstLocation = true;
 					
 					Geocoder geo = new Geocoder(this);
+					List<Address> addresses = null;
 					Address address = null;
 
 					try {
-						address = geo.getFromLocationName(destination, 1).get(0);
+						addresses = geo.getFromLocationName(destination, 1);
+						if( addresses.size() == 0 )
+						{
+							AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+							dialogBuilder
+								.setTitle("Error")
+								.setMessage("Address could not be validated.")
+								.setCancelable(false)
+								.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										dialog.dismiss();
+										finish();
+									}
+								}).create().show();
+							return;
+						}
+						
+						address = addresses.get(0);
 						navService.setSource(new NavLocation(lastKnownLocation));
 						navService.setDestination(new NavLocation(address.getLatitude(), address.getLongitude())); 
 						
 						navDirections.loadRoute(navService.getDirections());
 						navDirections.startNavigation();
+
+						viewInstruction.setText("GPS Found");
 						
 					} catch (IOException e) {
 						e.printStackTrace();
 					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} catch (JSONException e) {
 						e.printStackTrace();
 					}
 				}
@@ -193,12 +219,11 @@ public class HUDActivity extends Activity implements LocationListener
 				{
 					navDirections.setCurrentLocation(lastKnownLocation);
 					
-					viewArrow.setArrow(Maneuvers.getManeuver(navDirections.getNextManeuver()));
-					viewDistance.setText(navDirections.getDistance());
 					viewTime.setText(navDirections.getDuration());
+					viewDistance.setText(navDirections.getDistance());
 					viewInstruction.setText(navDirections.getNextInstruction());
+					viewArrow.setArrow(Maneuvers.getManeuver(navDirections.getNextManeuver()));
 				}
-				navDirections.setCurrentLocation(lastKnownLocation);
 			}
 		}
 	}

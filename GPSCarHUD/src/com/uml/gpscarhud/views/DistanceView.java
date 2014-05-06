@@ -38,7 +38,7 @@ public class DistanceView extends View {
 		paint.setAntiAlias(true);
 		paint.setColor(Color.RED);
 		paint.setAlpha(255);
-		paint.setTextSize(110);
+		paint.setTextSize(80);
 	}
 	
 	public void setText(String t)

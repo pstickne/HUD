@@ -45,13 +45,18 @@ public class ArrowView extends View
 		if( bitmap != null )
 		{
 			float scaleWidth = ((float) canvas.getWidth()) / bitmap.getWidth() * 0.5f;
-			float scaleHeight = ((float) canvas.getHeight()) / bitmap.getHeight() * 0.5f;
+			float scaleHeight = ((float) canvas.getHeight()) / bitmap.getHeight() * 0.7f;
 			Matrix matrix = new Matrix();
 			
 			matrix.postScale(scaleWidth, scaleHeight);
 			
 			bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
-			canvas.drawBitmap(bitmap, canvas.getWidth()/4, canvas.getHeight()/4, null);
+			
+			canvas.save();
+			canvas.translate(getWidth(), 0);
+			canvas.scale(-1, 1);
+			canvas.drawBitmap(bitmap, canvas.getWidth()/4, 50, null);
+			canvas.restore();
 		}
 		Log.i("ArrowView", "onDraw()");
 	}

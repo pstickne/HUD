@@ -20,8 +20,10 @@ public class Route
 		JSONArray jsonLegs = null;
 		JSONObject jsonLeg = null;
 		
+		legs = new ArrayList<Leg>();
+		
 		try {
-			jsonLegs = json.getJSONArray("legs");
+			if( json.has("legs") )	jsonLegs = json.getJSONArray("legs");
 
 			for( int i = 0; i < jsonLegs.length(); i++ )
 			{

@@ -40,7 +40,7 @@ public class TimeToDestinationView extends View {
 		textpainter.setAntiAlias(true);
 		textpainter.setColor(Color.RED);
 		textpainter.setAlpha(255);
-		textpainter.setTextSize(110);
+		textpainter.setTextSize(80);
 	}
 	
 	public void setText(String t)

@@ -1,8 +1,17 @@
 package com.uml.gpscarhud.nav;
 
+import java.util.List;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
+
+import android.os.IBinder;
+import android.os.RemoteException;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.internal.IPolylineDelegate;
 
 public class Step 
 {
@@ -35,6 +44,8 @@ public class Step
 					tempManeuver = "turn-right";
 				else if( html_instruction.contains("<b>left</b>") )
 					tempManeuver = "turn-left";
+				else
+					tempManeuver = "straight";
 				
 				html_instruction = Jsoup.parse(html_instruction).text();
 			}

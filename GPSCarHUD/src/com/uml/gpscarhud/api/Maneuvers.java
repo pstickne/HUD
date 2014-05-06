@@ -33,6 +33,7 @@ public class Maneuvers
 		arrowPoints.add(new Point(16, 100));
 		arrowPoints.add(new Point(0, 100));
 		arrowsMap.put("turn-right", arrowPoints);
+		arrowsMap.put("turn-sharp-right", arrowPoints);
 		
 		// turn-left
 		arrowPoints = new ArrayList<Point>();
@@ -47,7 +48,42 @@ public class Maneuvers
 		arrowPoints.add(new Point(84, 100));
 		arrowPoints.add(new Point(100, 100));
 		arrowsMap.put("turn-left", arrowPoints);
+		arrowsMap.put("turn-sharp-left", arrowPoints);
+		
+		// merge
+		arrowPoints = new ArrayList<Point>();
+		arrowPoints.add(new Point(98, 98));
+		arrowPoints.add(new Point(97, 73));
+		arrowPoints.add(new Point(61, 41));
+		arrowPoints.add(new Point(61, 29));
+		arrowPoints.add(new Point(78, 29));
+		arrowPoints.add(new Point(50, 2));
+		arrowPoints.add(new Point(21, 29));
+		arrowPoints.add(new Point(38, 29));
+		arrowPoints.add(new Point(38, 41));
+		arrowPoints.add(new Point(2, 73));
+		arrowPoints.add(new Point(2, 98));
+		arrowPoints.add(new Point(24, 98));
+		arrowPoints.add(new Point(24, 78));
+		arrowPoints.add(new Point(50, 57));
+		arrowPoints.add(new Point(75, 78));
+		arrowPoints.add(new Point(75, 98));
+		arrowPoints.add(new Point(98, 98));
+		arrowsMap.put("merge", arrowPoints);
+		
+		// straight
+		arrowPoints = new ArrayList<Point>();
+		arrowPoints.add(new Point(62, 98));
+		arrowPoints.add(new Point(62, 29));
+		arrowPoints.add(new Point(78, 29));
+		arrowPoints.add(new Point(50, 2));
+		arrowPoints.add(new Point(21, 29));
+		arrowPoints.add(new Point(38, 29));
+		arrowPoints.add(new Point(38, 98));
+		arrowPoints.add(new Point(65, 98));
+		arrowsMap.put("straight", arrowPoints);
 	}
+	
 	public static Bitmap getManeuver(String m)
 	{
 		if( arrowsMap == null )
@@ -67,7 +103,7 @@ public class Maneuvers
 		ArrayList<Point> points = arrowsMap.get(m);
 		Point p = points.get(0);
 		
-		paint.setStrokeWidth(3);
+		paint.setStrokeWidth(0);
 		paint.setColor(Color.RED);
 		paint.setStyle(Paint.Style.FILL_AND_STROKE);
 		paint.setAntiAlias(true);
