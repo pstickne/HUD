@@ -120,11 +120,6 @@ public class HUDActivity extends Activity implements LocationListener
 		if( getIntent().getExtras() != null )
 			destination = getIntent().getExtras().getString("destination");
 		Log.i("onCreate", "Destination: " + ( destination == null ? "NULL" : destination));
-		
-		viewInstruction.setText("Waiting for GPS Signal...");
-		viewTime.setText("");
-		viewDistance.setText("");
-		viewArrow.setArrow(null);
 	}
 	
 	@Override
@@ -170,6 +165,11 @@ public class HUDActivity extends Activity implements LocationListener
 				});
 			builder.create().show();
 		}
+		
+		viewInstruction.setText("Waiting for GPS Signal...");
+		viewTime.setText("");
+		viewDistance.setText("");
+		viewArrow.setArrow(null);
 	}	
 	
 	@Override

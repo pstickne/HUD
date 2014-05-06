@@ -56,6 +56,11 @@ public class DistanceView extends View
 	protected void onDraw(Canvas canvas)
 	{
 		width = canvas.getWidth();
+
+		if( textLayout.getWidth() != width ) {
+			setText(text);
+			return;
+		}
 		
 		canvas.save();
 		canvas.translate(width, 0);
