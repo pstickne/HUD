@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TooManyListenersException;
 
 import org.json.JSONException;
 
@@ -29,6 +28,7 @@ import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.OrientationEventListener;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
@@ -126,6 +126,11 @@ public class HUDActivity extends Activity implements LocationListener
 				}
 			}
 		});
+		
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		WindowManager.LayoutParams params = getWindow().getAttributes();
+		params.screenBrightness = 1.0f;
+		getWindow().setAttributes(params);
 		
 		avoidances = new HashMap<String, Boolean>();
 		if( getIntent().getExtras() != null )
