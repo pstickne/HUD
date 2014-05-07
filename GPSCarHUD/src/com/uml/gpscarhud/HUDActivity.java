@@ -52,7 +52,7 @@ public class HUDActivity extends Activity implements LocationListener
 	private String 		destination 		= null;
 	private NavLocation	lastKnownLocation 	= null;
 	private final int 	MINUTE 				= 60 * 1000;
-	private long		minTime				= MINUTE / 2;
+	private long		minTime				= MINUTE / 12;
 	private float 		minDistance			= 5.0f; 
 	
 	private InstructionView		viewInstruction		= null;
