@@ -1,13 +1,10 @@
 package com.uml.gpscarhud;
 
 import java.io.IOException;
-import java.security.acl.LastOwnerException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.json.JSONException;
 
@@ -55,7 +52,7 @@ public class HUDActivity extends Activity implements LocationListener
 	private NavLocation	currentKnownLocation 	= null;
 	private long		navComputeTime			= 0;
 	private final int 	MINUTE 					= 60 * 1000;
-	private long		minTime					= 8000;
+	private long		minTime					= 5000;
 	private float 		minDistance				= 0.0f; 
 	
 	private InstructionView		viewInstruction		= null;
