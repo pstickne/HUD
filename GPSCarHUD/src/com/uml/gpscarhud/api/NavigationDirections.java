@@ -20,6 +20,7 @@ public class NavigationDirections
 	private int legIndex = 0;
 	private int stepIndex = 0;
 	public int state = 0;
+	private boolean isOnRouteFailed = false;
 	
 	private JSONObject json = null;
 	private Route route = null;
@@ -46,8 +47,29 @@ public class NavigationDirections
 		state = STATE_IN_STARTING_ZONE;
 	}
 	
-	public boolean isOnRoute(NavLocation currentLoc)
+	public boolean isOnRoute(NavLocation currentLoc, NavLocation lastLoc)
 	{
+		if ( lastLoc == null ) {
+			isOnRouteFailed = false;
+			return true;
+		}
+
+		float myBearing = lastLoc.bearingTo(currentLoc);
+		float desiredBearing = currentLoc.bearingTo(getEndLocation());
+		double lastDistance = lastLoc.distanceTo(getEndLocation());
+		double currentDistance = currentLoc.distanceTo(getEndLocation());
+		
+		if( currentDistance < lastDistance &&
+			( myBearing < desiredBearing + 23 || myBearing > desiredBearing - 23 ) )
+		{
+			isOnRouteFailed = false;
+			return true;
+		}
+		
+		if( isOnRouteFailed )
+			return false;
+
+		isOnRouteFailed = true;
 		return true;
 	}
 	

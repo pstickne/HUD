@@ -58,6 +58,7 @@ public class HUDActivity extends Activity implements LocationListener
 	private boolean 	tolls					= false;
 	
 	private NavLocation	currentKnownLocation 	= null;
+	private NavLocation lastKnownLocation		= null;
 	private long		navComputeTime			= 0;
 	private final int 	MINUTE 					= 60 * 1000;
 	private long		minTime					= 5000;
@@ -269,7 +270,6 @@ public class HUDActivity extends Activity implements LocationListener
 				}
 				else
 				{
-					// TODO: Still need to fix arrival time
 					viewInstruction.setText(navDirections.getInstruction());
 					viewArrow.setArrow(Maneuvers.getManeuver(navDirections.getManeuver()));
 					
@@ -292,7 +292,7 @@ public class HUDActivity extends Activity implements LocationListener
 					
 					
 					// Placeholder for recalculating the route
-					if( !navDirections.isOnRoute(currentKnownLocation) )
+					if( !navDirections.isOnRoute(currentKnownLocation, lastKnownLocation) )
 					{
 						foundFirstLocation = false;
 						arrivalTimeHasBeenSet = false;
@@ -352,6 +352,7 @@ public class HUDActivity extends Activity implements LocationListener
 						navDirections.state = NavigationDirections.STATE_ON_ROUTE;
 					}
 				}
+				lastKnownLocation = currentKnownLocation;
 			}
 		}
 	}
