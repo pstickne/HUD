@@ -11,9 +11,15 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 
+/**
+ * This class deals with the creation of arrows and drawing them to a bitmap to be used by the ArrowView.
+ *
+ */
 public class Maneuvers 
 {
+	//Hashmap containing points to be drawn to a bitmap.
 	private static ArrayList<Point> arrowPoints = null;
+	//Hashmap containing the type of arrow and the points to be drawn to a bitmap.
 	private static Map<String, ArrayList<Point>> arrowsMap = null;
 	
 	private static void initMap()
@@ -84,6 +90,10 @@ public class Maneuvers
 		arrowsMap.put("straight", arrowPoints);
 	}
 	
+	/**
+	 * @param m A string that corresponds to the type of arrow that should be returned.
+	 * @return A bitmap containing the drawing of the requested arrow.
+	 */
 	public static Bitmap getManeuver(String m)
 	{
 		if( arrowsMap == null )
@@ -96,18 +106,26 @@ public class Maneuvers
 		return b;
 	}
 	
+	/**
+	 * @param canvas A canvas for drawing the bitmap on.
+	 * @param m A string that corresponds to the type of arrow that should be returned.
+	 * @return Returns a canvas with the requested arrow drawn onto it.
+	 */
 	private static Canvas drawManeuver(Canvas canvas, String m)
 	{
+		//Variable initialization.
 		Path path = new Path();
 		Paint paint = new Paint();
 		ArrayList<Point> points = arrowsMap.get(m);
 		Point p = points.get(0);
 		
+		//Set the paint options before drawing.
 		paint.setStrokeWidth(0);
 		paint.setColor(Color.RED);
 		paint.setStyle(Paint.Style.FILL_AND_STROKE);
 		paint.setAntiAlias(true);
 		
+		//Plot each point onto the canvas.
 		path.moveTo(p.x, p.y);
 		for (int i = 1; i < points.size(); i++) {
 			p = points.get(i);

@@ -12,6 +12,7 @@ import com.uml.gpscarhud.nav.Step;
 
 public class NavigationDirections 
 {
+	//State variables
 	public static int STATE_IN_STARTING_ZONE 	= ( 1 << 1 );
 	public static int STATE_ON_ROUTE			= ( 1 << 2 );
 	public static int STATE_IN_STEP_ZONE		= ( 1 << 3 );
@@ -20,6 +21,7 @@ public class NavigationDirections
 	private int legIndex = 0;
 	private int stepIndex = 0;
 	public int state = 0;
+	//Variable to check if there were two route compliance failures in a row.
 	private boolean isOnRouteFailed = false;
 	
 	private JSONObject json = null;
@@ -38,15 +40,22 @@ public class NavigationDirections
 	
 	public void startNavigation()
 	{
+		//The directions have been initialized properly.
 		if( route == null )
 			throw new Error("Route is null");
 		
 		legIndex = 0;
 		stepIndex = 0;
 		
+		//Initial state
 		state = STATE_IN_STARTING_ZONE;
 	}
 	
+	/**
+	 * @param currentLoc The most recent location that has been reported.
+	 * @param lastLoc The location before the current location to determine if the bearing and distance are moving correctly.
+	 * @return True if the driver appears to still be on the correct course.
+	 */
 	public boolean isOnRoute(NavLocation currentLoc, NavLocation lastLoc)
 	{
 		if ( lastLoc == null ) {
@@ -54,11 +63,13 @@ public class NavigationDirections
 			return true;
 		}
 
+		//Calculate bearing variables and distances
 		float myBearing = lastLoc.bearingTo(currentLoc);
 		float desiredBearing = currentLoc.bearingTo(getEndLocation());
 		double lastDistance = lastLoc.distanceTo(getEndLocation());
 		double currentDistance = currentLoc.distanceTo(getEndLocation());
 		
+		//If the bearing is in the right direction and we are getting closer, then we are still on course.
 		if( currentDistance < lastDistance &&
 			( myBearing < desiredBearing + 23 || myBearing > desiredBearing - 23 ) )
 		{
@@ -66,13 +77,18 @@ public class NavigationDirections
 			return true;
 		}
 		
+		//We have failed to be on the correct route twice in a row.
 		if( isOnRouteFailed )
 			return false;
 
+		//We have failed to be on the correct route for one check.
 		isOnRouteFailed = true;
 		return true;
 	}
 	
+	/**
+	 * Increment the directions step by 1.
+	 */
 	public void nextStep() {
 		stepIndex++;
 	}

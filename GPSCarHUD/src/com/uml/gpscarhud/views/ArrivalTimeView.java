@@ -37,6 +37,7 @@ public class ArrivalTimeView extends View
 
 	private void init()
 	{
+		//Initialize paint parameters.
 		textpainter = new TextPaint();
 		textpainter.setAntiAlias(true);
 		textpainter.setColor(Color.RED);
@@ -49,6 +50,7 @@ public class ArrivalTimeView extends View
 	public void setText(String t)
 	{
 		text = t;
+		//Create a new StaticLayout based on the View width.
 		if( text != null )
 			textLayout = new StaticLayout(text, textpainter, width, Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
 		invalidate();
@@ -64,6 +66,7 @@ public class ArrivalTimeView extends View
 	{
 		width = canvas.getWidth();
 
+		//If the width has changed since we last created the StaticLayout, make a new one for proper sizing.
 		if( textLayout.getWidth() != width ) {
 			setText(text);
 			return;

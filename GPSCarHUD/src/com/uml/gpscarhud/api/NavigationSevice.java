@@ -18,6 +18,10 @@ import android.util.Log;
 
 import com.uml.gpscarhud.nav.NavLocation;
 
+/**
+ * Accepts preference and location information and exposes a method to request directions from the Google Maps API.
+ *
+ */
 public class NavigationSevice
 {
 	private NavLocation source = null;
@@ -55,6 +59,7 @@ public class NavigationSevice
 		final NavigationInternalService nis = new NavigationInternalService();
 		nis.result = null;
 		
+		//Create a non-UI thread for making the HTTP API request.
 		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -70,6 +75,7 @@ public class NavigationSevice
 				if( source == null || destination == null || map == null )
 					return;
 				
+				//Build the string for any preferred avoidances.
 				try {
 					avoid = new StringBuilder("");
 					for( Map.Entry<String, Boolean> entry : map.entrySet() ) {
@@ -81,6 +87,7 @@ public class NavigationSevice
 						}
 					}
 
+					//Creates the URL request string format.
 					sb = new StringBuilder("");
 					sb.append("http://maps.googleapis.com/maps/api/directions/json?");
 					sb.append("origin=%f,%f&");
@@ -89,16 +96,19 @@ public class NavigationSevice
 					sb.append("avoid=%s&");
 					sb.append("sensor=false");
 					
+					//Apply the values to the string format created above
 					str = String.format( sb.toString() , source.getLat(), source.getLng(), 
 														 destination.getLat(), destination.getLng(),
 														 URLEncoder.encode(avoid.toString(),"UTF-8"));
 
 					Log.i("NavService", "URL: " + str);
 					
+					//Initialize the HTTP variables.
 					client = new DefaultHttpClient();
 					request = new HttpGet( str );
 					response = client.execute(request);
 					
+					//Code for reading the response.
 					in = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 					sb = new StringBuilder("");
 					String nl = System.getProperty("line.separator");
@@ -119,12 +129,14 @@ public class NavigationSevice
 				}
 			}
 		});
+		//Run the request thread and wait for it to finish.
 		t.start();
 		t.join();
 		return nis.result;
 	}
 }
 
+//Internal class for storing the JSON returned.
 class NavigationInternalService 
 {
 	JSONObject result;

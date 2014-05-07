@@ -37,6 +37,7 @@ public class InstructionView extends View
 	
 	private void init()
 	{
+		//Initialize paint parameters.
 		paint = new TextPaint();
 		paint.setAntiAlias(true);
 		paint.setColor(Color.RED);
@@ -49,6 +50,7 @@ public class InstructionView extends View
 	public void setText(String t)
 	{
 		text = t;
+		//Create a new StaticLayout based on the View width.
 		if( text != null )
 			textLayout = new StaticLayout(text, paint, width, Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
 		invalidate();
@@ -59,6 +61,7 @@ public class InstructionView extends View
 	{
 		width = canvas.getWidth();
 		
+		//If the width has changed since we last created the StaticLayout, make a new one for proper sizing.
 		if( textLayout.getWidth() != width ) {
 			setText(text);
 			return;
