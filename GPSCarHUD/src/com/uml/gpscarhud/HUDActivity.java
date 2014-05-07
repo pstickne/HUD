@@ -74,6 +74,7 @@ public class HUDActivity extends Activity implements LocationListener
 	private boolean 	ttsWarnedBeforeTurn			= false;
 	private boolean		ttsWarnedAtTurn				= false;
 	private boolean 	ttsWarnedFirstStep			= false;
+	private boolean     arrivalTimeHasBeenSet       = false;
 	private int 		currentOrientation			= ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
 	private int 		lockedOrientation			= ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
 	
@@ -271,10 +272,16 @@ public class HUDActivity extends Activity implements LocationListener
 					// TODO: Still need to fix arrival time
 					viewInstruction.setText(navDirections.getInstruction());
 					viewArrow.setArrow(Maneuvers.getManeuver(navDirections.getManeuver()));
-					viewTime.setText( "Arrival Time\n" + 
-							(new SimpleDateFormat("hh:mm a").format(
-									new Date(navComputeTime + 
-											 (navDirections.getLeg().getDuration().val() * 1000)))));
+					
+					//Arrival time should only be set once for each HTTP call, since leg's duration value will be the same.
+					if( !arrivalTimeHasBeenSet )
+					{
+						viewTime.setText( "Arrival Time\n" + 
+								(new SimpleDateFormat("hh:mm a").format(
+										new Date(navComputeTime + 
+												(navDirections.getLeg().getDuration().val() * 1000)))));
+						arrivalTimeHasBeenSet = true;
+					}
 					
 					// Just converts distance to feet if( distance < .1 mi )
 					if( navDirections.getEndLocation().distanceTo(currentKnownLocation) <= 160 )
@@ -288,6 +295,7 @@ public class HUDActivity extends Activity implements LocationListener
 					if( !navDirections.isOnRoute(currentKnownLocation) )
 					{
 						foundFirstLocation = false;
+						arrivalTimeHasBeenSet = false;
 						ttsWarnedFirstStep = false;
 						ttsWarnedAtTurn = false;
 						ttsWarnedBeforeTurn = false;
