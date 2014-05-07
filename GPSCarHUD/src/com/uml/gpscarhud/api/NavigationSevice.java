@@ -4,16 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -75,7 +71,6 @@ public class NavigationSevice
 					return;
 				
 				try {
-					// TODO: Test the avoidances
 					avoid = new StringBuilder("");
 					for( Map.Entry<String, Boolean> entry : map.entrySet() ) {
 						if( entry.getValue() ) {
@@ -96,7 +91,7 @@ public class NavigationSevice
 					
 					str = String.format( sb.toString() , source.getLat(), source.getLng(), 
 														 destination.getLat(), destination.getLng(),
-														 avoid.toString());
+														 URLEncoder.encode(avoid.toString(),"UTF-8"));
 
 					Log.i("NavService", "URL: " + str);
 					
