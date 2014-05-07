@@ -3,8 +3,11 @@ package com.uml.gpscarhud;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TooManyListenersException;
 
 import org.json.JSONException;
 
@@ -49,6 +52,11 @@ import com.uml.gpscarhud.views.InstructionView;
 public class HUDActivity extends Activity implements LocationListener
 {
 	private String 		destination 			= null;
+	
+	private Map<String, Boolean> avoidances		= null;
+	private boolean		highways				= false;
+	private boolean 	tolls					= false;
+	
 	private NavLocation	currentKnownLocation 	= null;
 	private long		navComputeTime			= 0;
 	private final int 	MINUTE 					= 60 * 1000;
@@ -117,9 +125,19 @@ public class HUDActivity extends Activity implements LocationListener
 			}
 		});
 		
+		avoidances = new HashMap<String, Boolean>();
 		if( getIntent().getExtras() != null )
+		{
 			destination = getIntent().getExtras().getString("destination");
+			highways = getIntent().getExtras().getBoolean("highways");
+			tolls = getIntent().getExtras().getBoolean("tolls");
+			
+			avoidances.put("tolls", tolls);
+			avoidances.put("highways", highways);
+		}
 		Log.i("onCreate", "Destination: " + ( destination == null ? "NULL" : destination));
+		Log.i("onCreate", "Avoid Highways: " + ( highways ? "TRUE" : "FALSE"));
+		Log.i("onCreate", "Avoid Tolls: " + ( tolls ? "TRUE" : "FALSE"));
 	}
 	
 	@Override
@@ -230,6 +248,7 @@ public class HUDActivity extends Activity implements LocationListener
 						address = addresses.get(0);
 						navService.setSource(currentKnownLocation);
 						navService.setDestination(new NavLocation(address.getLatitude(), address.getLongitude())); 
+						navService.setAvoidances(avoidances);
 						navDirections.loadRoute(navService.getDirections());
 						navDirections.startNavigation();
 						
@@ -338,10 +357,6 @@ public class HUDActivity extends Activity implements LocationListener
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 	}
 
-	public NavLocation getLastKnownLocation() {
-		return currentKnownLocation;
-	}
-	
 	public boolean isBetterLocation(NavLocation location, NavLocation currentBestLocation)
 	{
 		if( currentBestLocation == null )

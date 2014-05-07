@@ -29,8 +29,6 @@ public class MainActivity extends PreferenceActivity
 		findPreference("destination_text").setOnPreferenceChangeListener(strPrefChangeListener);
 		findPreference("avoid_highways_checkbox").setOnPreferenceChangeListener(boolPrefChangeListener);
 		findPreference("avoid_tolls_checkbox").setOnPreferenceChangeListener(boolPrefChangeListener);
-		findPreference("avoid_uturns_checkbox").setOnPreferenceChangeListener(boolPrefChangeListener);
-		findPreference("avoid_ferries_checkbox").setOnPreferenceChangeListener(boolPrefChangeListener);
 		
 		// Set Preference Default Values
 		findPreference("destination_text").setSummary(getPreferences(MODE_PRIVATE).getString("destination_text", ""));
@@ -40,11 +38,15 @@ public class MainActivity extends PreferenceActivity
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				String dest = getPreferences(MODE_PRIVATE).getString("destination_text", "");
+				boolean highways = getPreferences(MODE_PRIVATE).getBoolean("avoid_highways_checkbox", false);
+				boolean tolls = getPreferences(MODE_PRIVATE).getBoolean("avoid_tolls_checkbox", false);
 				
 				if( dest.length() > 0 )
 				{
 					Intent intent = new Intent(MainActivity.this, HUDActivity.class);
 					intent.putExtra("destination", dest);
+					intent.putExtra("highways", highways);
+					intent.putExtra("tolls", tolls);
 					intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 					startActivity(intent);
 				} else {

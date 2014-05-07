@@ -49,16 +49,6 @@
 	        android:title="@string/pref_title_avoid_tolls"
 	        android:defaultValue="false" />
 	    
-	    <CheckBoxPreference 
-	        android:key="avoid_uturns_checkbox"
-	        android:title="@string/pref_title_avoid_uturns"
-	        android:defaultValue="false" />
-	    
-	    <CheckBoxPreference 
-	        android:key="avoid_ferries_checkbox"
-	        android:title="@string/pref_title_avoid_ferries"
-	        android:defaultValue="false" />
-        
     </PreferenceCategory>
     
 
