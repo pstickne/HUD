@@ -1,6 +1,7 @@
 package com.uml.gpscarhud;
 
 import java.io.IOException;
+import java.security.acl.LastOwnerException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -34,6 +35,7 @@ import android.widget.Switch;
 import com.uml.gpscarhud.api.Maneuvers;
 import com.uml.gpscarhud.api.NavigationDirections;
 import com.uml.gpscarhud.api.NavigationSevice;
+import com.uml.gpscarhud.api.UnitConvert;
 import com.uml.gpscarhud.nav.NavLocation;
 import com.uml.gpscarhud.views.ArrivalTimeView;
 import com.uml.gpscarhud.views.ArrowView;
@@ -49,11 +51,12 @@ import com.uml.gpscarhud.views.InstructionView;
 @SuppressLint("SimpleDateFormat")
 public class HUDActivity extends Activity implements LocationListener
 {
-	private String 		destination 		= null;
-	private NavLocation	lastKnownLocation 	= null;
-	private final int 	MINUTE 				= 60 * 1000;
-	private long		minTime				= MINUTE / 2;
-	private float 		minDistance			= 5.0f; 
+	private String 		destination 			= null;
+	private NavLocation	currentKnownLocation 	= null;
+	private long		navComputeTime			= 0;
+	private final int 	MINUTE 					= 60 * 1000;
+	private long		minTime					= 8000;
+	private float 		minDistance				= 0.0f; 
 	
 	private InstructionView		viewInstruction		= null;
 	private ArrowView			viewArrow			= null;
@@ -63,8 +66,9 @@ public class HUDActivity extends Activity implements LocationListener
 	private Switch		btnOrientationLock			= null;
 	private boolean		orientationLock				= false;
 	private boolean		foundFirstLocation			= false;
-	private boolean 	ttsWarnBeforeTurn			= false;
-	private boolean		ttsWarnAtTurn				= false;
+	private boolean 	ttsWarnedBeforeTurn			= false;
+	private boolean		ttsWarnedAtTurn				= false;
+	private boolean 	ttsWarnedFirstStep			= false;
 	private int 		currentOrientation			= ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
 	private int 		lockedOrientation			= ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
 	
@@ -74,7 +78,6 @@ public class HUDActivity extends Activity implements LocationListener
 	
 	private NavigationSevice navService = new NavigationSevice();
 	private NavigationDirections navDirections = new NavigationDirections();
-	private NavigationDirections navDirectionsInternal = new NavigationDirections();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
@@ -196,9 +199,9 @@ public class HUDActivity extends Activity implements LocationListener
 		{
 			NavLocation myNavLoc = new NavLocation(location);
 			
-			if( isBetterLocation(myNavLoc, lastKnownLocation) )
+			if( isBetterLocation(myNavLoc, currentKnownLocation) )
 			{
-				lastKnownLocation = myNavLoc;
+				currentKnownLocation = myNavLoc;
 
 				if( foundFirstLocation == false )
 				{
@@ -228,12 +231,16 @@ public class HUDActivity extends Activity implements LocationListener
 						}
 						
 						address = addresses.get(0);
-						navService.setSource(lastKnownLocation);
+						navService.setSource(currentKnownLocation);
 						navService.setDestination(new NavLocation(address.getLatitude(), address.getLongitude())); 
 						navDirections.loadRoute(navService.getDirections());
 						navDirections.startNavigation();
+						
+						navComputeTime = System.currentTimeMillis();
+						
+						Log.i("HUDActivity", navDirections.getJSON().toString(2));
 
-						viewInstruction.setText("GPS Found");
+						viewInstruction.setText("Calculating route...");
 						
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -245,45 +252,80 @@ public class HUDActivity extends Activity implements LocationListener
 				}
 				else
 				{
-					try {
-						
-						// Get internal step progress
-						navService.setSource(lastKnownLocation);
-						navService.setDestination(navDirections.getNextEndLocation());
-						navDirectionsInternal.loadRoute(navService.getDirections());
-						navDirectionsInternal.startNavigation();
-						
-						viewInstruction.setText(navDirections.getNextInstruction());
-						viewArrow.setArrow(Maneuvers.getManeuver(navDirections.getNextManeuver()));
-						viewTime.setText( "Arrive at: " + 
-								(new SimpleDateFormat("hh:mm a").format(
-										new Date(System.currentTimeMillis() + 
-												 (navDirections.getDuration().val() * 1000)))));
-						viewDistance.setText(navDirectionsInternal.getLeg().getDistance().text());
-						
-						// Text To Speach warnings
-						if( !ttsWarnAtTurn && navDirectionsInternal.getLeg().getDistance().val() <= 30 )
-						{
-							ttsWarnAtTurn = true;
-							TTS.speak(navDirections.getNextInstruction(), TextToSpeech.QUEUE_ADD, null);
-							navDirections.nextStep();
-							new Timer().schedule(new TimerTask() {
-								@Override
-								public void run() {
-									TTS.speak(navDirections.getNextInstruction(), TextToSpeech.QUEUE_ADD, null);
-								}
-							}, 20000);
-						}
-						if( !ttsWarnBeforeTurn && navDirectionsInternal.getLeg().getDistance().val() <= 325 )
-						{
-							ttsWarnBeforeTurn = true;
-							TTS.speak("In 0.2 miles, " + navDirections.getNextInstruction(), TextToSpeech.QUEUE_ADD, null);
-						}
-						
-					} catch (JSONException e) {
-						e.printStackTrace();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+					// TODO: Still need to fix arrival time
+					viewInstruction.setText(navDirections.getInstruction());
+					viewArrow.setArrow(Maneuvers.getManeuver(navDirections.getManeuver()));
+					viewTime.setText( "Arrival Time\n" + 
+							(new SimpleDateFormat("hh:mm a").format(
+									new Date(navComputeTime + 
+											 (navDirections.getLeg().getDuration().val() * 1000)))));
+					
+					// Just converts distance to feet if( distance < .1 mi )
+					if( navDirections.getEndLocation().distanceTo(currentKnownLocation) <= 160 )
+						viewDistance.setText( navDirections.getEndLocation().distanceTo(currentKnownLocation, UnitConvert.FEET) + " ft" );
+					else
+						viewDistance.setText(navDirections.getEndLocation().distanceTo(currentKnownLocation, UnitConvert.MILES) + " mi");
+
+					
+					
+					// Placeholder for recalculating the route
+					if( !navDirections.isOnRoute(currentKnownLocation) )
+					{
+						foundFirstLocation = false;
+						ttsWarnedFirstStep = false;
+						ttsWarnedAtTurn = false;
+						ttsWarnedBeforeTurn = false;
+						TTS.speak("Recalculating", TextToSpeech.QUEUE_ADD, null);
+					}
+					
+					
+					
+					// Warn them of the first instruction
+					else if( !ttsWarnedFirstStep && 
+							 (  navDirections.state == NavigationDirections.STATE_IN_STARTING_ZONE ||
+							 	navDirections.state == NavigationDirections.STATE_ON_ROUTE ) )
+					{
+						ttsWarnedFirstStep = true;
+						TTS.speak(navDirections.getInstruction(), TextToSpeech.QUEUE_ADD, null);
+					}
+					
+					
+					
+					// Warn them of the instruction before the maneuver
+					else if( !ttsWarnedBeforeTurn && 
+							 navDirections.state == NavigationDirections.STATE_ON_ROUTE &&
+							 navDirections.getEndLocation().distanceTo(currentKnownLocation) <= 325 )
+					{
+						ttsWarnedBeforeTurn = true;
+						TTS.speak(	"In " + 
+									navDirections.getEndLocation().distanceTo(currentKnownLocation, UnitConvert.MILES) +
+									" miles, " + navDirections.getInstruction(), TextToSpeech.QUEUE_ADD, null);
+					}
+					
+					
+					
+					// Warn them when they get to the maneuver
+					else if( !ttsWarnedAtTurn && 
+							 navDirections.state == NavigationDirections.STATE_ON_ROUTE &&
+							 navDirections.getEndLocation().distanceTo(currentKnownLocation) <= 30 )
+					{
+						ttsWarnedAtTurn = true;
+						TTS.speak(navDirections.getInstruction(), TextToSpeech.QUEUE_ADD, null);
+						navDirections.state = NavigationDirections.STATE_IN_STEP_ZONE;
+					}
+					
+					
+					
+					// They have passed through the step and must proceed to the next step
+					else if( ttsWarnedBeforeTurn && ttsWarnedAtTurn &&
+							 navDirections.state == NavigationDirections.STATE_IN_STEP_ZONE &&
+							 navDirections.getEndLocation().distanceTo(currentKnownLocation) > 30 )
+					{
+						ttsWarnedFirstStep = false;
+						ttsWarnedAtTurn = false;
+						ttsWarnedBeforeTurn = false;
+						navDirections.nextStep();
+						navDirections.state = NavigationDirections.STATE_ON_ROUTE;
 					}
 				}
 			}
@@ -300,7 +342,7 @@ public class HUDActivity extends Activity implements LocationListener
 	}
 
 	public NavLocation getLastKnownLocation() {
-		return lastKnownLocation;
+		return currentKnownLocation;
 	}
 	
 	public boolean isBetterLocation(NavLocation location, NavLocation currentBestLocation)
