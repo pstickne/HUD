@@ -315,7 +315,9 @@ public class HUDActivity extends Activity implements LocationListener
 					if( navDirections.state == NavigationDirections.STATE_IN_STARTING_ZONE &&
 						navDirections.getLeg().getStartLocation().distanceTo(currentKnownLocation) > 30 )
 					{
+						ttsWarnedFirstStep = false;
 						navDirections.state = NavigationDirections.STATE_ON_ROUTE;
+						navDirections.nextStep();
 					}
 					
 					
