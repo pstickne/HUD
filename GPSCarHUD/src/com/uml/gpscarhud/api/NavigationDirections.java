@@ -3,8 +3,6 @@ package com.uml.gpscarhud.api;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.uml.gpscarhud.nav.Distance;
 import com.uml.gpscarhud.nav.Duration;
 import com.uml.gpscarhud.nav.Leg;
@@ -114,9 +112,11 @@ public class NavigationDirections
 	public int getCurrentStep()					{ 	return stepIndex;							}
 	public Leg getLeg() 						{	return getRoute().getLegs().get(legIndex);	}
 	public Step getStep() 						{	return getLeg().getSteps().get(stepIndex);	}
+	public Step getStep(int i)					{ 	return getLeg().getSteps().get(i);			}
 	public String getInstruction() 				{	return getStep().getInstruction();			}
 	public String getManeuver() 				{	return getStep().getManeuver();				}
 	public Distance getDistance() 				{	return getStep().getDistance();				}
+	public Distance getDistance(int i)			{	return getStep(i).getDistance();			}
 	public Duration getDuration() 				{	return getStep().getDuration();				}
 	public NavLocation getStartLocation()		{ 	return getStep().getStartAddress();			}
 	public NavLocation getEndLocation() 		{	return getStep().getEndAddress();			}

@@ -280,6 +280,22 @@ public class HUDActivity extends Activity implements LocationListener
 //					Log.i("HUDActivity", "Start Log: " + navDirections.getLeg().getStartLocation().toString());
 //					Log.i("HUDActivity", "Distance from start: " + navDirections.getLeg().getStartLocation().distanceTo(currentKnownLocation));
 //					Log.i("HUDActivity", "Distance to end: " + navDirections.getEndLocation().distanceTo(currentKnownLocation));
+
+					
+					
+					// They have passed through the step and must proceed to the next step
+					// do this before checking isOnRoute to check in comparison to new checkpoint.
+					if( ttsWarnedBeforeTurn && ttsWarnedAtTurn &&
+						navDirections.state == NavigationDirections.STATE_IN_STEP_ZONE &&
+						navDirections.getEndLocation().distanceTo(currentKnownLocation) > 40 )
+					{
+						ttsWarnedFirstStep = false;
+						ttsWarnedAtTurn = false;
+						ttsWarnedBeforeTurn = false;
+						navDirections.nextStep();
+						navDirections.state = NavigationDirections.STATE_ON_ROUTE;
+					}
+					
 					
 					
 					// Check to see if they are on route
@@ -318,21 +334,6 @@ public class HUDActivity extends Activity implements LocationListener
 					}
 					
 					
-
-					// They have passed through the step and must proceed to the next step
-					// do this before checking isOnRoute to check in comparison to new checkpoint.
-					if( ttsWarnedBeforeTurn && ttsWarnedAtTurn &&
-						navDirections.state == NavigationDirections.STATE_IN_STEP_ZONE &&
-						navDirections.getEndLocation().distanceTo(currentKnownLocation) > 40 )
-					{
-						ttsWarnedFirstStep = false;
-						ttsWarnedAtTurn = false;
-						ttsWarnedBeforeTurn = false;
-						navDirections.nextStep();
-						navDirections.state = NavigationDirections.STATE_ON_ROUTE;
-					}
-					
-
 					
 					// Warn them when they get to the maneuver
 					if( !ttsWarnedAtTurn && 
