@@ -3,6 +3,7 @@ package com.uml.gpscarhud.views;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -58,6 +59,10 @@ public class ArrowView extends View
 			canvas.drawBitmap(bitmap, canvas.getWidth()/4, 50, null);
 			canvas.restore();
 		}
-		Log.i("ArrowView", "onDraw()");
+		else
+		{
+			canvas.drawColor(Color.BLACK);
+		}
+//		Log.i("ArrowView", "onDraw()");
 	}
 }

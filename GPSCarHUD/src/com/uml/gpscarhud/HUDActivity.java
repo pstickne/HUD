@@ -1,10 +1,8 @@
 package com.uml.gpscarhud;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -17,8 +15,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.SensorManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -62,7 +58,7 @@ public class HUDActivity extends Activity implements LocationListener
 	private long		navComputeTime			= 0;
 	private final int 	MINUTE 					= 60 * 1000;
 	private long		minTime					= 2000;
-	private float 		minDistance				= 5.0f; 
+	private float 		minDistance				= 0.0f; 
 	
 	private InstructionView		viewInstruction		= null;
 	private ArrowView			viewArrow			= null;
@@ -120,9 +116,6 @@ public class HUDActivity extends Activity implements LocationListener
 				{
 					lockedOrientation = currentOrientation;
 					btnOrientationLock.setVisibility(View.GONE);
-					
-					if( OEL != null )
-						OEL.disable();
 				}
 			}
 		});
@@ -142,9 +135,6 @@ public class HUDActivity extends Activity implements LocationListener
 			avoidances.put("tolls", tolls);
 			avoidances.put("highways", highways);
 		}
-		Log.i("onCreate", "Destination: " + ( destination == null ? "NULL" : destination));
-		Log.i("onCreate", "Avoid Highways: " + ( highways ? "TRUE" : "FALSE"));
-		Log.i("onCreate", "Avoid Tolls: " + ( tolls ? "TRUE" : "FALSE"));
 	}
 	
 	@Override
@@ -229,32 +219,9 @@ public class HUDActivity extends Activity implements LocationListener
 				{
 					foundFirstLocation = true;
 					
-					Geocoder geo = new Geocoder(this);
-					List<Address> addresses = null;
-					Address address = null;
-
 					try {
-						addresses = geo.getFromLocationName(destination, 1);
-						if( addresses.size() == 0 )
-						{
-							AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-							dialogBuilder
-								.setTitle("Error")
-								.setMessage("Address could not be validated.")
-								.setCancelable(false)
-								.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										dialog.dismiss();
-										finish();
-									}
-								}).create().show();
-							return;
-						}
-						
-						address = addresses.get(0);
 						navService.setSource(currentKnownLocation);
-						navService.setDestination(new NavLocation(address.getLatitude(), address.getLongitude())); 
+						navService.setDestination(destination); 
 						navService.setAvoidances(avoidances);
 						navDirections.loadRoute(navService.getDirections());
 						navDirections.startNavigation();
@@ -263,48 +230,57 @@ public class HUDActivity extends Activity implements LocationListener
 						
 						Log.i("HUDActivity", navDirections.getJSON().toString(2));
 
-						viewInstruction.setText("Calculating route...");
+						viewInstruction.setText("Calculating route to\n" + 
+												navDirections.getLeg().getEndAddress());
+						TTS.speak("Calculating route to " +
+									navDirections.getLeg().getEndAddress(), TextToSpeech.QUEUE_ADD, null);
 						
-					} catch (IOException e) {
+					} catch (JSONException e) {
 						e.printStackTrace();
 					} catch (InterruptedException e) {
-						e.printStackTrace();
-					} catch (JSONException e) {
 						e.printStackTrace();
 					}
 				}
 				else
 				{
-					viewInstruction.setText(navDirections.getInstruction());
-					viewArrow.setArrow(Maneuvers.getManeuver(navDirections.getManeuver()));
-					
-					//Arrival time should only be set once for each HTTP call, since leg's duration value will be the same.
-					if( !arrivalTimeHasBeenSet )
+					if( navDirections.state != NavigationDirections.STATE_IN_ENDING_ZONE )
 					{
-						viewTime.setText( "Arrival Time\n" + 
-								(new SimpleDateFormat("hh:mm a").format(
-										new Date(navComputeTime + 
-												(navDirections.getLeg().getDuration().val() * 1000)))));
-						arrivalTimeHasBeenSet = true;
+						viewInstruction.setText(navDirections.getInstruction());
+						viewArrow.setArrow(Maneuvers.getManeuver(navDirections.getManeuver()));
+						
+						//Arrival time should only be set once for each HTTP call, since leg's duration value will be the same.
+						if( !arrivalTimeHasBeenSet )
+						{
+							viewTime.setText( "Arrival Time\n" + 
+									(new SimpleDateFormat("hh:mm a").format(
+											new Date(navComputeTime + 
+													(navDirections.getLeg().getDuration().val() * 1000)))));
+							arrivalTimeHasBeenSet = true;
+						}
+						
+						// Just converts distance to feet if( distance < .1 mi )
+						if( navDirections.getEndLocation().distanceTo(currentKnownLocation) <= 160 )
+							viewDistance.setText("Checkpoint In\n" + navDirections.getEndLocation().distanceTo(currentKnownLocation, Unit.Converter.TO_FEET) + " ft" );
+						else
+							viewDistance.setText("Checkpoint In\n" + navDirections.getEndLocation().distanceTo(currentKnownLocation, Unit.Converter.TO_MILES) + " mi");
 					}
-					
-					// Just converts distance to feet if( distance < .1 mi )
-					if( navDirections.getEndLocation().distanceTo(currentKnownLocation) <= 160 )
-						viewDistance.setText( navDirections.getEndLocation().distanceTo(currentKnownLocation, Unit.Converter.TO_FEET) + " ft" );
 					else
-						viewDistance.setText(navDirections.getEndLocation().distanceTo(currentKnownLocation, Unit.Converter.TO_MILES) + " mi");
-
-					// They have passed through the step and must proceed to the next step, do this before checking isOnRoute to check in comparison to new checkpoint.
-					if( ttsWarnedBeforeTurn && ttsWarnedAtTurn &&
-						navDirections.state == NavigationDirections.STATE_IN_STEP_ZONE &&
-						navDirections.getEndLocation().distanceTo(currentKnownLocation) > 30 )
 					{
-						ttsWarnedFirstStep = false;
-						ttsWarnedAtTurn = false;
-						ttsWarnedBeforeTurn = false;
-						navDirections.nextStep();
-						navDirections.state = NavigationDirections.STATE_ON_ROUTE;
+						viewInstruction.setText("You have arrived at " + navDirections.getLeg().getEndAddress());
+						viewArrow.setArrow(null);
+						viewTime.setText("");
+						viewDistance.setText("");
+						return;
 					}
+					
+//					Log.i("HUDActivity", "Nav State: " + navDirections.state);
+//					Log.i("HUDActivity", "Current Loc: " + currentKnownLocation.toString());
+//					Log.i("HUDActivity", "Last Loc: " + lastKnownLocation.toString());
+//					Log.i("HUDActivity", "End Loc: " + navDirections.getEndLocation().toString());
+//					Log.i("HUDActivity", "Start Log: " + navDirections.getLeg().getStartLocation().toString());
+//					Log.i("HUDActivity", "Distance from start: " + navDirections.getLeg().getStartLocation().distanceTo(currentKnownLocation));
+//					Log.i("HUDActivity", "Distance to end: " + navDirections.getEndLocation().distanceTo(currentKnownLocation));
+					
 					
 					// Check to see if they are on route
 					// if not, recalculate the route
@@ -323,7 +299,7 @@ public class HUDActivity extends Activity implements LocationListener
 					
 					// They have left the starting zone
 					if( navDirections.state == NavigationDirections.STATE_IN_STARTING_ZONE &&
-						navDirections.getLeg().getStartLocation().distanceTo(currentKnownLocation) > 30 )
+						navDirections.getLeg().getStartLocation().distanceTo(currentKnownLocation) > 40 )
 					{
 						ttsWarnedFirstStep = false;
 						navDirections.state = NavigationDirections.STATE_ON_ROUTE;
@@ -334,16 +310,33 @@ public class HUDActivity extends Activity implements LocationListener
 					
 					// They have arrived at their destination
 					if( navDirections.getLeg().getSteps().size() - 1 == navDirections.getCurrentStep() &&
-						navDirections.getLeg().getEndLocation().distanceTo(currentKnownLocation) < 30 )
+						navDirections.getLeg().getEndLocation().distanceTo(currentKnownLocation) < 40 )
 					{
 						navDirections.state = NavigationDirections.STATE_IN_ENDING_ZONE;
-						TTS.speak("You have arrived at your destination.", TextToSpeech.QUEUE_ADD, null);
+						TTS.speak("You have arrived at " + navDirections.getLeg().getEndAddress(), TextToSpeech.QUEUE_ADD, null);
+						return;
+					}
+					
+					
+
+					// They have passed through the step and must proceed to the next step
+					// do this before checking isOnRoute to check in comparison to new checkpoint.
+					if( ttsWarnedBeforeTurn && ttsWarnedAtTurn &&
+						navDirections.state == NavigationDirections.STATE_IN_STEP_ZONE &&
+						navDirections.getEndLocation().distanceTo(currentKnownLocation) > 40 )
+					{
+						ttsWarnedFirstStep = false;
+						ttsWarnedAtTurn = false;
+						ttsWarnedBeforeTurn = false;
+						navDirections.nextStep();
+						navDirections.state = NavigationDirections.STATE_ON_ROUTE;
 					}
 					
 
+					
 					// Warn them when they get to the maneuver
 					if( !ttsWarnedAtTurn && 
-						 navDirections.getEndLocation().distanceTo(currentKnownLocation) <= 30 )
+						 navDirections.getEndLocation().distanceTo(currentKnownLocation) <= 40 )
 					{
 						ttsWarnedAtTurn = true;
 						ttsWarnedBeforeTurn = true;

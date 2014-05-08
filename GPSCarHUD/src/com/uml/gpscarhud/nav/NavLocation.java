@@ -9,14 +9,18 @@ import com.uml.gpscarhud.api.Unit;
 
 public class NavLocation extends Location
 {
+	private long timestamp = 0;
+	
 	public NavLocation()
 	{
 		super("");
+		timestamp = System.currentTimeMillis();
 	}
 	
 	public NavLocation(Location loc)
 	{
 		super(loc);
+		timestamp = System.currentTimeMillis();
 	}
 	
 	public NavLocation(JSONObject json)
@@ -28,6 +32,7 @@ public class NavLocation extends Location
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+		timestamp = System.currentTimeMillis();
 	}
 	
 	public NavLocation(double lat, double lng)
@@ -35,8 +40,12 @@ public class NavLocation extends Location
 		super("");
 		setLatitude(lat);
 		setLongitude(lng);
+		timestamp = System.currentTimeMillis();
 	}
 	
+	public long getTimestamp() {
+		return timestamp;
+	}
 	public double getLat() {
 		return getLatitude();
 	}
@@ -62,5 +71,21 @@ public class NavLocation extends Location
 		
 		ret = thisLoc.distanceTo(otherLoc);
 		return Unit.Converter.convert(ret, unit, 2);
+	}
+	
+	public double speedFrom(NavLocation other)
+	{
+		return speedFrom(other, Unit.Converter.TO_MILES, Unit.Converter.TO_HOURS);
+	}
+	public double speedFrom(NavLocation other, int distanceUnit, int timeUnit)
+	{
+		double d = distanceTo(other, distanceUnit);
+		long t = Unit.Converter.convert((getTimestamp() - other.getTimestamp())/1000, timeUnit);
+		return d / t;
+	}
+	
+	public String toString()
+	{
+		return getLat() + ", " + getLng();
 	}
 }

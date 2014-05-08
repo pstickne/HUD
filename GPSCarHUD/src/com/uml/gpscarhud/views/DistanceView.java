@@ -76,7 +76,7 @@ public class DistanceView extends View
 		}
 		
 		canvas.restore();
-		Log.i("DistanceView", "onDraw()");
+//		Log.i("DistanceView", "onDraw()");
 	}
 
 }

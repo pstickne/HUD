@@ -83,7 +83,7 @@ public class ArrivalTimeView extends View
 		}
 		
 		canvas.restore();
-		Log.i("ArrivalTimeView", "onDraw()");
+//		Log.i("ArrivalTimeView", "onDraw()");
 	}
 	
 }

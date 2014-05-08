@@ -3,6 +3,8 @@ package com.uml.gpscarhud.api;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.uml.gpscarhud.nav.Distance;
 import com.uml.gpscarhud.nav.Duration;
 import com.uml.gpscarhud.nav.Leg;
@@ -13,10 +15,10 @@ import com.uml.gpscarhud.nav.Step;
 public class NavigationDirections 
 {
 	//State variables
-	public static int STATE_IN_STARTING_ZONE 	= ( 1 << 1 );
-	public static int STATE_ON_ROUTE			= ( 1 << 2 );
-	public static int STATE_IN_STEP_ZONE		= ( 1 << 3 );
-	public static int STATE_IN_ENDING_ZONE		= ( 1 << 4 );
+	public static int STATE_IN_STARTING_ZONE 	= ( 1 << 1 ); // 2
+	public static int STATE_ON_ROUTE			= ( 1 << 2 ); // 4
+	public static int STATE_IN_STEP_ZONE		= ( 1 << 3 ); // 8
+	public static int STATE_IN_ENDING_ZONE		= ( 1 << 4 ); // 16
 	
 	private int legIndex = 0;
 	private int stepIndex = 0;
@@ -70,8 +72,24 @@ public class NavigationDirections
 		double lastDistance = lastLoc.distanceTo(getEndLocation());
 		double currentDistance = currentLoc.distanceTo(getEndLocation());
 		
+//		Log.i("isOnRoute", "My Bearing: " + myBearing);
+//		Log.i("isOnRoute", "Desired Bearing: " + desiredBearing);
+//		Log.i("isOnRoute", "Last Distance: " + lastDistance);
+//		Log.i("isOnRoute", "Current Distance: " + currentDistance);
+//		Log.i("isOnRoute", "isOnRouteFailed: " + (isOnRouteFailed > 0 ? "TRUE" : "FALSE"));
+		
+		
+		// If they haven't moved that much, we can't assume they're off route
+		if( Math.floor(currentDistance) <= Math.floor(lastDistance) + 1 ||
+			Math.floor(currentDistance) >= Math.floor(lastDistance) - 1 )
+		{
+			isOnRouteFailed = 0;
+			return true;
+		}
+		
+		
 		//If the bearing is in the right direction and we are getting closer, then we are still on course.
-		if( currentDistance < lastDistance &&
+		if( Math.floor(currentDistance) <= Math.floor(lastDistance) &&
 			( myBearing < desiredBearing + 23 && myBearing > desiredBearing - 23 ) )
 		{
 			isOnRouteFailed = 0;

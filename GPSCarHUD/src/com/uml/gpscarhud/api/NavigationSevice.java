@@ -25,7 +25,8 @@ import com.uml.gpscarhud.nav.NavLocation;
 public class NavigationSevice
 {
 	private NavLocation source = null;
-	private NavLocation destination = null;
+	private NavLocation destinationLoc = null;
+	private String destinationStr = null;
 	private Map<String, Boolean> map = null;
 	
 	public NavigationSevice()
@@ -36,7 +37,7 @@ public class NavigationSevice
 	public NavigationSevice(NavLocation s, NavLocation d)
 	{
 		source = s;
-		destination = d;
+		destinationLoc = d;
 	}
 	
 	public void setSource(NavLocation s)
@@ -46,7 +47,12 @@ public class NavigationSevice
 	
 	public void setDestination(NavLocation d)
 	{
-		destination = d;
+		destinationLoc = d;
+	}
+	
+	public void setDestination(String d)
+	{
+		destinationStr = d;
 	}
 	
 	public void setAvoidances(Map<String, Boolean> m)
@@ -72,7 +78,9 @@ public class NavigationSevice
 				HttpResponse response = null;
 				BufferedReader in = null;
 				
-				if( source == null || destination == null || map == null )
+				if( source == null || 
+					( destinationLoc == null && destinationStr == null ) || 
+					map == null )
 					return;
 				
 				//Build the string for any preferred avoidances.
@@ -86,19 +94,25 @@ public class NavigationSevice
 								avoid.append(entry.getKey());
 						}
 					}
+					
+					// If the destination is not already a string, convert it
+					if( destinationLoc != null )
+					{
+						destinationStr = destinationLoc.getLat() + "," + destinationLoc.getLng();
+					}
 
 					//Creates the URL request string format.
 					sb = new StringBuilder("");
 					sb.append("http://maps.googleapis.com/maps/api/directions/json?");
 					sb.append("origin=%f,%f&");
-					sb.append("destination=%f,%f&");
+					sb.append("destination=%s&");
 					sb.append("mode=driving&");
 					sb.append("avoid=%s&");
 					sb.append("sensor=false");
 					
 					//Apply the values to the string format created above
 					str = String.format( sb.toString() , source.getLat(), source.getLng(), 
-														 destination.getLat(), destination.getLng(),
+														 URLEncoder.encode(destinationStr, "UTF-8"),
 														 URLEncoder.encode(avoid.toString(),"UTF-8"));
 
 					Log.i("NavService", "URL: " + str);

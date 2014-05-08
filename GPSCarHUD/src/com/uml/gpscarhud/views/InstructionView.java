@@ -77,6 +77,6 @@ public class InstructionView extends View
 		}
 		
 		canvas.restore();
-		Log.i("InstructionView", "onDraw()");
+//		Log.i("InstructionView", "onDraw()");
 	}
 }
