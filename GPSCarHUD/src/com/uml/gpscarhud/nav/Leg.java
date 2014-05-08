@@ -69,4 +69,8 @@ public class Leg
 	public ArrayList<Step> getSteps() {
 		return steps;
 	}
+	public void setSteps(ArrayList<Step> steps)
+	{
+		this.steps = steps;
+	}
 }

@@ -1,5 +1,7 @@
 package com.uml.gpscarhud.api;
 
+import java.util.ArrayList;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -35,6 +37,47 @@ public class NavigationDirections
 	{
 		this.json = json;
 		this.route = new Route(json.getJSONArray("routes").getJSONObject(0));
+		
+		addEndingDestination();
+	}
+	
+	public void addEndingDestination()
+	{
+		Leg leg = route.getLegs().get(legIndex);
+		ArrayList<Step> steps = leg.getSteps();
+		JSONObject lastStep = new JSONObject();
+		JSONObject temp = null;
+		
+		try {
+			lastStep.put("html_instructions", "Arrive at " + getLeg().getEndAddress());
+			
+			temp = new JSONObject();
+			temp.put("lat", getLeg().getEndLocation().getLat());
+			temp.put("lng", getLeg().getEndLocation().getLng());
+			lastStep.put("end_location", temp);
+			
+			temp = new JSONObject();
+			temp.put("lat", getLeg().getStartLocation().getLat());
+			temp.put("lng", getLeg().getStartLocation().getLng());
+			lastStep.put("start_location", temp);
+			
+			temp = new JSONObject();
+			temp.put("text", "0 mi");
+			temp.put("value", 0);
+			lastStep.put("distance", temp);
+			
+			temp = new JSONObject();
+			temp.put("text", "0 mi");
+			temp.put("value", 0);
+			lastStep.put("duration", temp);
+			
+			steps.add(new Step(lastStep));
+			getLeg().setSteps(steps);
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	public void startNavigation()
@@ -76,14 +119,6 @@ public class NavigationDirections
 //		Log.i("isOnRoute", "isOnRouteFailed: " + (isOnRouteFailed > 0 ? "TRUE" : "FALSE"));
 		
 		
-		// If they haven't moved that much, we can't assume they're off route
-		if( currentDistance <= lastDistance + 3 ||
-			currentDistance >= lastDistance - 3 )
-		{
-			return true;
-		}
-		
-		
 		//If the bearing is in the right direction and we are getting closer, then we are still on course.
 		if( Math.floor(currentDistance) <= Math.floor(lastDistance) &&
 			( myBearing < desiredBearing + 23 && myBearing > desiredBearing - 23 ) )
@@ -104,7 +139,8 @@ public class NavigationDirections
 	 * Increment the directions step by 1.
 	 */
 	public void nextStep() {
-		stepIndex++;
+		if( stepIndex < getLeg().getSteps().size() - 1 )
+			stepIndex++;
 	}
 	
 	public JSONObject getJSON()					{ 	return json;								}
