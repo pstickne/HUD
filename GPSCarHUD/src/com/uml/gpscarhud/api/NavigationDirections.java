@@ -23,8 +23,7 @@ public class NavigationDirections
 	private int legIndex = 0;
 	private int stepIndex = 0;
 	public int state = 0;
-	//Variable to check if there were two route compliance failures in a row.
-	private int isOnRouteFailed = 0;
+	private NavLocation lastGoodLocation = null;
 	
 	private JSONObject json = null;
 	private Route route = null;
@@ -62,7 +61,7 @@ public class NavigationDirections
 	public boolean isOnRoute(NavLocation currentLoc, NavLocation lastLoc)
 	{
 		if ( lastLoc == null ) {
-			isOnRouteFailed = 0;
+			lastGoodLocation = currentLoc;
 			return true;
 		}
 
@@ -80,10 +79,9 @@ public class NavigationDirections
 		
 		
 		// If they haven't moved that much, we can't assume they're off route
-		if( Math.floor(currentDistance) <= Math.floor(lastDistance) + 1 ||
-			Math.floor(currentDistance) >= Math.floor(lastDistance) - 1 )
+		if( currentDistance <= lastDistance + 3 ||
+			currentDistance >= lastDistance - 3 )
 		{
-			isOnRouteFailed = 0;
 			return true;
 		}
 		
@@ -92,16 +90,15 @@ public class NavigationDirections
 		if( Math.floor(currentDistance) <= Math.floor(lastDistance) &&
 			( myBearing < desiredBearing + 23 && myBearing > desiredBearing - 23 ) )
 		{
-			isOnRouteFailed = 0;
+			lastGoodLocation = currentLoc;
 			return true;
 		}
 		
-		//We have failed to be on the correct route twice in a row.
-		if( isOnRouteFailed == 2 )
+		//We have failed to be on the correct route, outside of the radius
+		else if( lastGoodLocation.distanceTo(currentLoc) > 30 )
 			return false;
 
-		//We have failed to be on the correct route for one check.
-		isOnRouteFailed++;
+		// We have failed to be on the correct route, but we're still in the radius 
 		return true;
 	}
 	
