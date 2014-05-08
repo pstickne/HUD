@@ -59,6 +59,10 @@ public class NavLocation extends Location
 	}
 	public double distanceTo(NavLocation other, int unit)
 	{
+		return distanceTo(other, unit, 2);
+	}
+	public double distanceTo(NavLocation other, int unit, int precision)
+	{
 		double ret = 0;
 		Location thisLoc = new Location("");
 		Location otherLoc = new Location("");
@@ -70,7 +74,7 @@ public class NavLocation extends Location
 		otherLoc.setLongitude(other.getLng());
 		
 		ret = thisLoc.distanceTo(otherLoc);
-		return Unit.Converter.convert(ret, unit, 2);
+		return Unit.Converter.convert(ret, unit, precision);
 	}
 	
 	public double speedFrom(NavLocation other)

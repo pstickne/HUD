@@ -69,7 +69,6 @@ public class HUDActivity extends Activity implements LocationListener
 	private boolean		orientationLock				= false;
 	private boolean		foundFirstLocation			= false;
 	private boolean 	ttsWarnedBeforeTurn			= false;
-	private boolean		ttsWarnedAtTurn				= false;
 	private int 		currentOrientation			= ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
 	private int 		lockedOrientation			= ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
 	
@@ -226,8 +225,6 @@ public class HUDActivity extends Activity implements LocationListener
 						
 						navComputeTime = System.currentTimeMillis();
 						
-						Log.i("HUDActivity", navDirections.getJSON().toString(2));
-
 						TTS.speak(navDirections.getInstruction(), TextToSpeech.QUEUE_ADD, null);
 						updateDisplay();
 						
@@ -252,7 +249,7 @@ public class HUDActivity extends Activity implements LocationListener
 						return;
 					}
 					if( navDirections.getLeg().getSteps().size() - 1 == navDirections.getCurrentStep() &&
-						navDirections.getLeg().getEndLocation().distanceTo(currentKnownLocation) < 40 )
+						navDirections.getLeg().getEndLocation().distanceTo(currentKnownLocation) < 50 )
 					{
 						navDirections.state = NavigationDirections.STATE_IN_ENDING_ZONE;
 						TTS.speak("Arriving at destination", TextToSpeech.QUEUE_ADD, null);
@@ -285,6 +282,21 @@ public class HUDActivity extends Activity implements LocationListener
 					
 
 					///////////////////////////////////////////////////////////////////////////////////////////////
+//					Log.i("HUDActivity", "Nav State: " + navDirections.state);
+//					Log.i("HUDActivity", "Current Loc: " + currentKnownLocation.toString());
+//					Log.i("HUDActivity", "Last Loc: " + lastKnownLocation.toString());
+//					Log.i("HUDActivity", "End Loc: " + navDirections.getEndLocation().toString());
+//					Log.i("HUDActivity", "Start Loc: " + navDirections.getLeg().getStartLocation().toString());
+//					Log.i("HUDActivity", "Distance to start: " + navDirections.getStartLocation().distanceTo(currentKnownLocation));
+//					Log.i("HUDActivity", "Distance to end: " + navDirections.getEndLocation().distanceTo(currentKnownLocation));
+					///////////////////////////////////////////////////////////////////////////////////////////////					
+					
+					
+					
+					
+					
+
+					///////////////////////////////////////////////////////////////////////////////////////////////
 					// Update all the views' displays
 					updateDisplay();
 					///////////////////////////////////////////////////////////////////////////////////////////////
@@ -298,14 +310,19 @@ public class HUDActivity extends Activity implements LocationListener
 					// They are in a step zone
 					if( navDirections.state == NavigationDirections.STATE_IN_STEP_ZONE )
 					{
-						if( navDirections.getStartLocation().distanceTo(currentKnownLocation) > 60 )
+						if( navDirections.getStartLocation().distanceTo(currentKnownLocation) > 50 )
 						{
 							navDirections.state = NavigationDirections.STATE_ON_ROUTE;
 							navDirections.nextStep();
 							updateDisplay();
-							TTS.speak(	"In " + 
-										navDirections.getStartLocation().distanceTo(currentKnownLocation, Unit.Converter.TO_MILES) +
-										" miles, " + navDirections.getInstruction(), TextToSpeech.QUEUE_ADD, null);
+							if( navDirections.getStartLocation().distanceTo(currentKnownLocation) < 240 )
+								TTS.speak(	"In " + 
+											navDirections.getStartLocation().distanceTo(currentKnownLocation, Unit.Converter.TO_FEET, 0) +
+											" feet, " + navDirections.getInstruction(), TextToSpeech.QUEUE_ADD, null);
+							else
+								TTS.speak(	"In " + 
+											navDirections.getStartLocation().distanceTo(currentKnownLocation, Unit.Converter.TO_MILES) +
+											" miles, " + navDirections.getInstruction(), TextToSpeech.QUEUE_ADD, null);
 						}
 					}
 					///////////////////////////////////////////////////////////////////////////////////////////////
@@ -319,49 +336,44 @@ public class HUDActivity extends Activity implements LocationListener
 					// They are on route
 					else if( navDirections.state == NavigationDirections.STATE_ON_ROUTE )
 					{
-						// Check to see if they are on route
-						if( !navDirections.isOnRoute(currentKnownLocation, lastKnownLocation) )
-						{
-							foundFirstLocation = false;
-							ttsWarnedAtTurn = false;
-							ttsWarnedBeforeTurn = false;
-							TTS.speak("Recalculating", TextToSpeech.QUEUE_ADD, null);
-							return;
-						}
-						
-						
 						// Warn the driver of upcoming instructions
-						if( navDirections.getStartLocation().distanceTo(currentKnownLocation) <= 50 &&
-							!ttsWarnedAtTurn )
+						if( navDirections.getStartLocation().distanceTo(currentKnownLocation) <= 40 )
 						{
-							ttsWarnedAtTurn = true;
+							ttsWarnedBeforeTurn = true;
 							navDirections.state = NavigationDirections.STATE_IN_STEP_ZONE;
-							TTS.speak(navDirections.getInstruction(), TextToSpeech.QUEUE_ADD, null);
+							TTS.speak(navDirections.getInstruction() + " then " + 
+									  navDirections.getInstruction(navDirections.getCurrentStep() + 1), 
+									  TextToSpeech.QUEUE_ADD, null);
 						}
 						else if( navDirections.getStartLocation().distanceTo(currentKnownLocation) <= 325 &&
 								 !ttsWarnedBeforeTurn )
 						{
 							ttsWarnedBeforeTurn = true;
 							navDirections.state = NavigationDirections.STATE_ON_ROUTE;
-							TTS.speak(	"In " + 
+							if( navDirections.getStartLocation().distanceTo(currentKnownLocation) < 240 )
+								TTS.speak(	"In " + 
+											navDirections.getStartLocation().distanceTo(currentKnownLocation, Unit.Converter.TO_FEET, 0) +
+											" feet, " + navDirections.getInstruction(), TextToSpeech.QUEUE_ADD, null);
+							else
+								TTS.speak(	"In " + 
 										navDirections.getStartLocation().distanceTo(currentKnownLocation, Unit.Converter.TO_MILES) +
 										" miles, " + navDirections.getInstruction(), TextToSpeech.QUEUE_ADD, null);
+								
 						}
+
+						
+						// Check to see if they are on route
+						if( !navDirections.isOnRoute(currentKnownLocation, lastKnownLocation) &&
+								navDirections.getStartLocation().distanceTo(currentKnownLocation) > 40 )
+						{
+							foundFirstLocation = false;
+							ttsWarnedBeforeTurn = false;
+							TTS.speak("Recalculating", TextToSpeech.QUEUE_ADD, null);
+							return;
+						}
+						
 					}
 					///////////////////////////////////////////////////////////////////////////////////////////////
-					
-					
-					
-					
-					
-					
-//					Log.i("HUDActivity", "Nav State: " + navDirections.state);
-//					Log.i("HUDActivity", "Current Loc: " + currentKnownLocation.toString());
-//					Log.i("HUDActivity", "Last Loc: " + lastKnownLocation.toString());
-//					Log.i("HUDActivity", "End Loc: " + navDirections.getEndLocation().toString());
-//					Log.i("HUDActivity", "Start Log: " + navDirections.getLeg().getStartLocation().toString());
-//					Log.i("HUDActivity", "Distance from start: " + navDirections.getLeg().getStartLocation().distanceTo(currentKnownLocation));
-//					Log.i("HUDActivity", "Distance to end: " + navDirections.getEndLocation().distanceTo(currentKnownLocation));
 
 					lastKnownLocation = currentKnownLocation;
 				}
@@ -379,8 +391,8 @@ public class HUDActivity extends Activity implements LocationListener
 								(navDirections.getLeg().getDuration().val() * 1000)))));
 		
 		// Just converts distance to feet if( distance < .1 mi )
-		if( navDirections.getStartLocation().distanceTo(currentKnownLocation) <= 160 )
-			viewDistance.setText("Checkpoint In\n" + navDirections.getStartLocation().distanceTo(currentKnownLocation, Unit.Converter.TO_FEET) + " ft" );
+		if( navDirections.getStartLocation().distanceTo(currentKnownLocation) <= 240 )
+			viewDistance.setText("Checkpoint In\n" + navDirections.getStartLocation().distanceTo(currentKnownLocation, Unit.Converter.TO_FEET, 0) + " ft" );
 		else
 			viewDistance.setText("Checkpoint In\n" + navDirections.getStartLocation().distanceTo(currentKnownLocation, Unit.Converter.TO_MILES) + " mi");
 	}

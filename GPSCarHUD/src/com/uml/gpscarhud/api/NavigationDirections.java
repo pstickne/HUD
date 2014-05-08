@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.uml.gpscarhud.nav.Distance;
 import com.uml.gpscarhud.nav.Duration;
 import com.uml.gpscarhud.nav.Leg;
@@ -23,6 +25,7 @@ public class NavigationDirections
 	private int legIndex = 0;
 	private int stepIndex = 0;
 	public int state = 0;
+	private int failCount = 0;
 	private NavLocation lastGoodLocation = null;
 	
 	private JSONObject json = null;
@@ -35,6 +38,8 @@ public class NavigationDirections
 	
 	public void loadRoute(JSONObject json) throws JSONException
 	{
+		Log.i("NavDir", json.toString(2));
+		
 		this.json = json;
 		this.route = new Route(json.getJSONArray("routes").getJSONObject(0));
 		
@@ -102,6 +107,12 @@ public class NavigationDirections
 	public boolean isOnRoute(NavLocation currentLoc, NavLocation lastLoc)
 	{
 		if ( lastLoc == null ) {
+			failCount++;
+			
+			if( failCount > 5 )
+				return false;
+				
+			failCount = 0;
 			lastGoodLocation = currentLoc;
 			return true;
 		}
@@ -112,26 +123,39 @@ public class NavigationDirections
 		double lastDistance = lastLoc.distanceTo(getStartLocation());
 		double currentDistance = currentLoc.distanceTo(getStartLocation());
 		
-//		Log.i("isOnRoute", "My Bearing: " + myBearing);
-//		Log.i("isOnRoute", "Desired Bearing: " + desiredBearing);
-//		Log.i("isOnRoute", "Last Distance: " + lastDistance);
-//		Log.i("isOnRoute", "Current Distance: " + currentDistance);
-//		Log.i("isOnRoute", "isOnRouteFailed: " + (isOnRouteFailed > 0 ? "TRUE" : "FALSE"));
+		Log.i("isOnRoute", "My Bearing: " + myBearing);
+		Log.i("isOnRoute", "Desired Bearing: " + desiredBearing);
+		Log.i("isOnRoute", "Distance to Last: " + lastDistance);
+		Log.i("isOnRoute", "Distance to Start: " + currentDistance);
+		if( lastGoodLocation != null )
+			Log.i("isOnRoute", "MyPos to LastGoodLoc: " + lastGoodLocation.distanceTo(currentLoc));
+		Log.i("isOnRoute", "Failed Count: " + failCount);
 		
 		
 		//If the bearing is in the right direction and we are getting closer, then we are still on course.
 		if( Math.floor(currentDistance) <= Math.floor(lastDistance) &&
-			( myBearing < desiredBearing + 23 && myBearing > desiredBearing - 23 ) )
+			( myBearing < desiredBearing + 50 && myBearing > desiredBearing - 50 ) )
 		{
+			failCount = 0;
 			lastGoodLocation = currentLoc;
 			return true;
 		}
 		
 		//We have failed to be on the correct route, outside of the radius
-		else if( lastGoodLocation.distanceTo(currentLoc) > 30 )
-			return false;
+		else if( lastGoodLocation != null && lastGoodLocation.distanceTo(currentLoc) > 60 )
+		{
+			if( failCount > 5 ) {
+				failCount = 0;
+				return false;
+			}
+			else {
+				failCount++;
+				return true;
+			}
+		}
 
 		// We have failed to be on the correct route, but we're still in the radius 
+		failCount++;
 		return true;
 	}
 	
@@ -150,6 +174,7 @@ public class NavigationDirections
 	public Step getStep() 						{	return getLeg().getSteps().get(stepIndex);	}
 	public Step getStep(int i)					{ 	return getLeg().getSteps().get(i);			}
 	public String getInstruction() 				{	return getStep().getInstruction();			}
+	public String getInstruction(int i)			{ 	return getStep(i).getInstruction();			}
 	public String getManeuver() 				{	return getStep().getManeuver();				}
 	public Distance getDistance() 				{	return getStep().getDistance();				}
 	public Distance getDistance(int i)			{	return getStep(i).getDistance();			}
