@@ -294,7 +294,17 @@ public class HUDActivity extends Activity implements LocationListener
 					else
 						viewDistance.setText(navDirections.getEndLocation().distanceTo(currentKnownLocation, Unit.Converter.TO_MILES) + " mi");
 
-					
+					// They have passed through the step and must proceed to the next step, do this before checking isOnRoute to check in comparison to new checkpoint.
+					if( ttsWarnedBeforeTurn && ttsWarnedAtTurn &&
+						navDirections.state == NavigationDirections.STATE_IN_STEP_ZONE &&
+						navDirections.getEndLocation().distanceTo(currentKnownLocation) > 30 )
+					{
+						ttsWarnedFirstStep = false;
+						ttsWarnedAtTurn = false;
+						ttsWarnedBeforeTurn = false;
+						navDirections.nextStep();
+						navDirections.state = NavigationDirections.STATE_ON_ROUTE;
+					}
 					
 					// Check to see if they are on route
 					// if not, recalculate the route
@@ -329,20 +339,6 @@ public class HUDActivity extends Activity implements LocationListener
 						navDirections.state = NavigationDirections.STATE_IN_ENDING_ZONE;
 						TTS.speak("You have arrived at your destination.", TextToSpeech.QUEUE_ADD, null);
 					}
-					
-					
-					// They have passed through the step and must proceed to the next step
-					if( ttsWarnedBeforeTurn && ttsWarnedAtTurn &&
-						navDirections.state == NavigationDirections.STATE_IN_STEP_ZONE &&
-						navDirections.getEndLocation().distanceTo(currentKnownLocation) > 30 )
-					{
-						ttsWarnedFirstStep = false;
-						ttsWarnedAtTurn = false;
-						ttsWarnedBeforeTurn = false;
-						navDirections.nextStep();
-						navDirections.state = NavigationDirections.STATE_ON_ROUTE;
-					}
-					
 					
 
 					// Warn them when they get to the maneuver

@@ -22,7 +22,7 @@ public class NavigationDirections
 	private int stepIndex = 0;
 	public int state = 0;
 	//Variable to check if there were two route compliance failures in a row.
-	private boolean isOnRouteFailed = false;
+	private int isOnRouteFailed = 0;
 	
 	private JSONObject json = null;
 	private Route route = null;
@@ -52,6 +52,7 @@ public class NavigationDirections
 	}
 	
 	/**
+	 * This function will test if the driver is still on route, we test 3 locations before determining that they are off the correct route.
 	 * @param currentLoc The most recent location that has been reported.
 	 * @param lastLoc The location before the current location to determine if the bearing and distance are moving correctly.
 	 * @return True if the driver appears to still be on the correct course.
@@ -59,7 +60,7 @@ public class NavigationDirections
 	public boolean isOnRoute(NavLocation currentLoc, NavLocation lastLoc)
 	{
 		if ( lastLoc == null ) {
-			isOnRouteFailed = false;
+			isOnRouteFailed = 0;
 			return true;
 		}
 
@@ -73,16 +74,16 @@ public class NavigationDirections
 		if( currentDistance < lastDistance &&
 			( myBearing < desiredBearing + 23 && myBearing > desiredBearing - 23 ) )
 		{
-			isOnRouteFailed = false;
+			isOnRouteFailed = 0;
 			return true;
 		}
 		
 		//We have failed to be on the correct route twice in a row.
-		if( isOnRouteFailed )
+		if( isOnRouteFailed == 2 )
 			return false;
 
 		//We have failed to be on the correct route for one check.
-		isOnRouteFailed = true;
+		isOnRouteFailed++;
 		return true;
 	}
 	
