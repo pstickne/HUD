@@ -108,9 +108,9 @@ public class NavigationDirections
 
 		//Calculate bearing variables and distances
 		float myBearing = lastLoc.bearingTo(currentLoc);
-		float desiredBearing = currentLoc.bearingTo(getEndLocation());
-		double lastDistance = lastLoc.distanceTo(getEndLocation());
-		double currentDistance = currentLoc.distanceTo(getEndLocation());
+		float desiredBearing = currentLoc.bearingTo(getStartLocation());
+		double lastDistance = lastLoc.distanceTo(getStartLocation());
+		double currentDistance = currentLoc.distanceTo(getStartLocation());
 		
 //		Log.i("isOnRoute", "My Bearing: " + myBearing);
 //		Log.i("isOnRoute", "Desired Bearing: " + desiredBearing);

@@ -228,8 +228,8 @@ public class HUDActivity extends Activity implements LocationListener
 						
 						Log.i("HUDActivity", navDirections.getJSON().toString(2));
 
-						viewInstruction.setText(navDirections.getInstruction());
 						TTS.speak(navDirections.getInstruction(), TextToSpeech.QUEUE_ADD, null);
+						updateDisplay();
 						
 					} catch (JSONException e) {
 						e.printStackTrace();
