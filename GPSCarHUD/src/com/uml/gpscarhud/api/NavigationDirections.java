@@ -71,7 +71,7 @@ public class NavigationDirections
 		
 		//If the bearing is in the right direction and we are getting closer, then we are still on course.
 		if( currentDistance < lastDistance &&
-			( myBearing < desiredBearing + 23 || myBearing > desiredBearing - 23 ) )
+			( myBearing < desiredBearing + 23 && myBearing > desiredBearing - 23 ) )
 		{
 			isOnRouteFailed = false;
 			return true;
