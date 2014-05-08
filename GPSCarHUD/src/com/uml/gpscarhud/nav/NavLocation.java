@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 import android.location.Location;
 
-import com.uml.gpscarhud.api.UnitConvert;
+import com.uml.gpscarhud.api.Unit;
 
 public class NavLocation extends Location
 {
@@ -46,7 +46,7 @@ public class NavLocation extends Location
 	
 	public double distanceTo(NavLocation other)
 	{
-		return distanceTo(other, UnitConvert.METERS);
+		return distanceTo(other, Unit.Converter.TO_METERS);
 	}
 	public double distanceTo(NavLocation other, int unit)
 	{
@@ -61,6 +61,6 @@ public class NavLocation extends Location
 		otherLoc.setLongitude(other.getLng());
 		
 		ret = thisLoc.distanceTo(otherLoc);
-		return UnitConvert.convert(ret, unit, 2);
+		return Unit.Converter.convert(ret, unit, 2);
 	}
 }

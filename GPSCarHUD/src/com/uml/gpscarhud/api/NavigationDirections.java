@@ -95,6 +95,7 @@ public class NavigationDirections
 	
 	public JSONObject getJSON()					{ 	return json;								}
 	public Route getRoute()						{	return route;								}
+	public int getCurrentStep()					{ 	return stepIndex;							}
 	public Leg getLeg() 						{	return getRoute().getLegs().get(legIndex);	}
 	public Step getStep() 						{	return getLeg().getSteps().get(stepIndex);	}
 	public String getInstruction() 				{	return getStep().getInstruction();			}
