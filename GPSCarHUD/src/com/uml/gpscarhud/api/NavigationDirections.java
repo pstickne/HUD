@@ -38,7 +38,7 @@ public class NavigationDirections
 	
 	public void loadRoute(JSONObject json) throws JSONException
 	{
-		Log.i("NavDir", json.toString(2));
+//		Log.i("NavDir", json.toString(2));
 		
 		this.json = json;
 		this.route = new Route(json.getJSONArray("routes").getJSONObject(0));
