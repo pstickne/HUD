@@ -48,13 +48,12 @@ public class NavigationDirections
 	
 	public void addEndingDestination()
 	{
-		Leg leg = route.getLegs().get(legIndex);
-		ArrayList<Step> steps = leg.getSteps();
+		ArrayList<Step> steps = getLeg().getSteps();
 		JSONObject lastStep = new JSONObject();
 		JSONObject temp = null;
 		
 		try {
-			lastStep.put("html_instructions", "Arrive at " + getLeg().getEndAddress());
+			lastStep.put("html_instructions", "Arrive at your destination");
 			
 			temp = new JSONObject();
 			temp.put("lat", getLeg().getEndLocation().getLat());
@@ -72,7 +71,7 @@ public class NavigationDirections
 			lastStep.put("distance", temp);
 			
 			temp = new JSONObject();
-			temp.put("text", "0 mi");
+			temp.put("text", "0 min");
 			temp.put("value", 0);
 			lastStep.put("duration", temp);
 			
@@ -147,10 +146,6 @@ public class NavigationDirections
 			if( failCount > 5 ) {
 				failCount = 0;
 				return false;
-			}
-			else {
-				failCount++;
-				return true;
 			}
 		}
 

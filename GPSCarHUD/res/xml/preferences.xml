@@ -26,12 +26,13 @@
 	        android:maxLines="3"
 	        android:selectAllOnFocus="true" />
 	    
+	    <!-- 
 	    <ListPreference
 	        android:key="destinationHistory"
 	        android:title="Destination History"
 	        android:summary="Previously saved destinations"
 	        />
-	    
+	     -->
 
     </PreferenceCategory>
 
